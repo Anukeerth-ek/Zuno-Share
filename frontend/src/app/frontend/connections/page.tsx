@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { MoreHorizontal, Users, Mail, MapPin, Briefcase, Plus, CheckCircle2, XCircle, Bell, User as UserIcon, Save } from "lucide-react";
+import { MoreHorizontal, Users, Mail, MapPin, Briefcase, Plus, CheckCircle2, XCircle, Bell, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -13,7 +12,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useGetUserConnections } from "@/app/hooks/useGetUserConnection";
 import { Separator } from "@/components/ui/separator";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 
 interface UserConnection {
 	id: string;
@@ -30,8 +29,6 @@ interface UserConnection {
 	};
 }
 
-type Skill = { id?: string; name: string };
-
 interface IncomingRequest {
 	id: string;
 	sender: {
@@ -42,7 +39,6 @@ interface IncomingRequest {
 }
 
 export default function ConnectionListPage() {
-	const [selectedRows, setSelectedRows] = useState<string[]>([]);
 	const { user: currentUser } = useGetMyProfile();
 	const router = useRouter();
 	const { usersConnection, setUsersConnection, loading, error } = useGetUserConnections(currentUser?.id);
@@ -58,8 +54,8 @@ export default function ConnectionListPage() {
 				const res = await fetch(`https://skillswap-platform-ovuw.onrender.com/api/connections/requests/incoming/${currentUser?.id}`);
 				const data = await res.json();
 				if (res.ok) setIncomingRequests(data || []);
-			} catch (err) {
-				console.error(err);
+			} catch (_err) {
+				console.error(_err);
 			}
 		};
 		fetchIncoming();
@@ -72,7 +68,7 @@ export default function ConnectionListPage() {
 			const res = await fetch(`https://skillswap-platform-ovuw.onrender.com/api/connections/requests/incoming/${currentUser.id}`);
 			const data = await res.json();
 			setIncomingRequests(data || []);
-		} catch (err) {
+		} catch (_err) {
 			toast.error("Failed to load connection requests");
 		} finally {
 			setLoadingRequests(false);

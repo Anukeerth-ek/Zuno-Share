@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Plus, X, Clock, Book, Lightbulb, User as UserIcon, Building2, Briefcase, Camera, Save, MapPin, Sparkles, ShieldCheck } from "lucide-react";
+import { Plus, X, Lightbulb, User as UserIcon, Building2, Camera, Save, MapPin, Sparkles, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -27,18 +27,6 @@ const ProfileCreatePage = () => {
 		skillsOffered: string[];
 		skillsWanted: string[];
 	};
-
-	interface UserProfileApiResponse {
-		name?: string;
-		bio?: string;
-		avatarUrl?: string;
-		timeZone?: string;
-		professionDetails?: { title?: string };
-		currentOrganization?: { organization?: string };
-		experienceSummary?: { years?: number };
-		skillsOffered?: { name: string }[];
-		skillsWanted?: { name: string }[];
-	}
 
 	const [formData, setFormData] = useState<ProfileData>({
 		name: "",
@@ -188,8 +176,8 @@ const ProfileCreatePage = () => {
 					professionDetails: { title: data.user.professionDetails?.title || "" },
 					currentOrganization: { organization: data.user.currentOrganization?.organization || "" },
 					experienceSummary: { years: data.user.experienceSummary?.years?.toString() || "" },
-					skillsOffered: data.user.skillsOffered?.map((s: any) => s.name) || [],
-					skillsWanted: data.user.skillsWanted?.map((s: any) => s.name) || [],
+					skillsOffered: data.user.skillsOffered?.map((s: { name: string }) => s.name) || [],
+					skillsWanted: data.user.skillsWanted?.map((s: { name: string }) => s.name) || [],
 				});
 				if (data.user.avatarUrl) setAvatarPreview(data.user.avatarUrl);
 			}
