@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useGetMyProfile } from "@/app/hooks/useGetMyProfile";
 import { User } from "@/types";
 import { formatDate } from "@/utils/formatData";
+import { getBaseUrl } from "@/utils/getBaseUrl";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export const ConnectionDetailSideBar = ({ user }: { user: User }) => {
@@ -36,7 +37,8 @@ export const ConnectionDetailSideBar = ({ user }: { user: User }) => {
           }
 
           try {
-               const response = await fetch("https://skillswap-platform-ovuw.onrender.com/api/connections/request", {
+               const BASE_URL = getBaseUrl();
+               const response = await fetch(`${BASE_URL}/api/connections/request`, {
                     method: "POST",
                     headers: {
                          "Content-Type": "application/json",

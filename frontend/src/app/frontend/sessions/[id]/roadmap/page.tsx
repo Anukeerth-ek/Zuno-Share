@@ -15,6 +15,7 @@ import ReactFlow, {
      Node,
 } from "reactflow";
 import "reactflow/dist/style.css";
+import { getBaseUrl } from "@/utils/getBaseUrl";
 
 interface Session {
      id: string;
@@ -89,7 +90,8 @@ export default function RoadmapPage() {
                setSession(sessionData);
 
                // fetch roadmap from backend
-               fetch(`https://skillswap-platform-ovuw.onrender.com/api/sessions/${sessionData.id}/roadmap`, {
+               const BASE_URL = getBaseUrl();
+               fetch(`${BASE_URL}/api/sessions/${sessionData.id}/roadmap`, {
                     headers: {
                          authorization: `Bearer ${token}`,
                     },
@@ -112,13 +114,14 @@ export default function RoadmapPage() {
           }
      }, [reactFlowInstance, token, setEdges, setNodes]);
 
-     const handleSave = async () => {
-          if (!reactFlowInstance || !session) return;
+	const handleSave = async () => {
+		if (!reactFlowInstance || !session) return;
 
-          const flow = reactFlowInstance.toObject(); // { nodes, edges, viewport }
+		const flow = reactFlowInstance.toObject(); // { nodes, edges, viewport }
+		const BASE_URL = getBaseUrl();
 
-          await fetch(`https://skillswap-platform-ovuw.onrender.com/api/sessions/${session.id}/roadmap`, {
-               method: "POST",
+		await fetch(`${BASE_URL}/api/sessions/${session.id}/roadmap`, {
+			method: "POST",
                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                body: JSON.stringify({ roadmap: flow }),
           });

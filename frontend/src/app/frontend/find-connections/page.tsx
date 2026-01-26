@@ -50,7 +50,7 @@ const FindConnections = () => {
 
      //      // Fallback based on environment
      //      if (process.env.NODE_ENV === "production") {
-     //           return "https://skillswap-platform-ovuw.onrender.com";
+     //           return getBaseUrl();
      //      } else {
      //           return "http://localhost:4000";
      //      }
