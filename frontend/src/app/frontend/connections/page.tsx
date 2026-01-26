@@ -1,460 +1,323 @@
 "use client";
 
-import { useState } from "react";
-import {  MoreHorizontal } from "lucide-react";
+import { useState, useEffect } from "react";
+import { MoreHorizontal, Users, Mail, MapPin, Briefcase, Plus, CheckCircle2, XCircle, Bell, User as UserIcon, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
-// import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useEffect } from "react";
 import { useGetMyProfile } from "@/app/hooks/useGetMyProfile";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useGetUserConnections } from "@/app/hooks/useGetUserConnection";
-// import { SearchBar } from "@/app/components/Searchbar";
+import { Separator } from "@/components/ui/separator";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface UserConnection {
-     id: string;
-     name?: string;
-     jobTitle?: string;
-     department: string;
-     email?: string;
-     avatar?: string;
-     user: {
-          id: string;
-          name: string;
-          skillsOffered?: { name: string }[];
-          skillsWanted?: { name: string }[];
-     };
+	id: string;
+	name?: string;
+	jobTitle?: string;
+	department: string;
+	email?: string;
+	avatar?: string;
+	user: {
+		id: string;
+		name: string;
+		skillsOffered?: { name: string }[];
+		skillsWanted?: { name: string }[];
+	};
 }
+
 type Skill = { id?: string; name: string };
 
 interface IncomingRequest {
-     id: string;
-     sender: {
-          id: string;
-          name: string;
-     };
+	id: string;
+	sender: {
+		id: string;
+		name: string;
+		avatarUrl?: string;
+	};
 }
 
-// const departments = ["All Departments", "Management", "Office", "Development", "Marketing", "Sales & Business"];
-
-const getDepartmentColor = (department: string) => {
-     const colors = {
-          Management: "bg-orange-100 text-orange-800",
-          Office: "bg-blue-100 text-blue-800",
-          Development: "bg-cyan-100 text-cyan-800",
-          Marketing: "bg-pink-100 text-pink-800",
-          "Sales & Business": "bg-green-100 text-green-800",
-     };
-     return colors[department as keyof typeof colors] || "bg-gray-100 text-gray-800";
-};
-
 export default function ConnectionListPage() {
-     // const [searchTerm, setSearchTerm] = useState("");
-     // const [selectedDepartment, setSelectedDepartment] = useState("All Departments");
-     const [selectedRows, setSelectedRows] = useState<string[]>([]);
-     // const [rowsPerPage, setRowsPerPage] = useState(10);
-     // const [connectionLoading, setConnectionLoading] = useState(true);
-     // const [searchResult, setSearchResult] = useState("");
+	const [selectedRows, setSelectedRows] = useState<string[]>([]);
+	const { user: currentUser } = useGetMyProfile();
+	const router = useRouter();
+	const { usersConnection, setUsersConnection, loading, error } = useGetUserConnections(currentUser?.id);
 
-     // const [usersConnection, setUsersConnection] = useState<UserConnection[]>([]);
-     const { user: currentUser } = useGetMyProfile();
+	const [showPopover, setShowPopover] = useState(false);
+	const [incomingRequests, setIncomingRequests] = useState<IncomingRequest[]>([]);
+	const [loadingRequests, setLoadingRequests] = useState(false);
 
-     const router = useRouter();
+	useEffect(() => {
+		if (!currentUser?.id) return;
+		const fetchIncoming = async () => {
+			try {
+				const res = await fetch(`https://skillswap-platform-ovuw.onrender.com/api/connections/requests/incoming/${currentUser?.id}`);
+				const data = await res.json();
+				if (res.ok) setIncomingRequests(data || []);
+			} catch (err) {
+				console.error(err);
+			}
+		};
+		fetchIncoming();
+	}, [currentUser?.id]);
 
-     // useEffect(() => {
-     //      if (!currentUser?.id) return;
-     //      const fetchUsersConnection = async () => {
-     //           const res = await fetch(`https://skillswap-platform-ovuw.onrender.com/api/connections/${currentUser?.id}`);
-     //           const data = await res.json();
-     //           console.table("dfjdklf", data);
-     //           setUsersConnection(data.connections);
-     //      };
-     //      fetchUsersConnection();
-     // }, [currentUser?.id]);
+	const fetchIncomingRequests = async () => {
+		if (!currentUser?.id) return;
+		setLoadingRequests(true);
+		try {
+			const res = await fetch(`https://skillswap-platform-ovuw.onrender.com/api/connections/requests/incoming/${currentUser.id}`);
+			const data = await res.json();
+			setIncomingRequests(data || []);
+		} catch (err) {
+			toast.error("Failed to load connection requests");
+		} finally {
+			setLoadingRequests(false);
+		}
+	};
 
-     const { usersConnection, setUsersConnection, loading, error } = useGetUserConnections(currentUser?.id);
+	const handleAccept = async (connectionId: string) => {
+		try {
+			const res = await fetch("https://skillswap-platform-ovuw.onrender.com/api/connections/accept", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ connectionId }),
+			});
+			if (res.ok) {
+				toast.success("Connection accepted");
+				setIncomingRequests((prev) => prev.filter((c) => c.id !== connectionId));
+				const updated = await fetch(`https://skillswap-platform-ovuw.onrender.com/api/connections/${currentUser?.id}`);
+				const data = await updated.json();
+				setUsersConnection?.(data);
+			}
+		} catch {
+			toast.error("Something went wrong");
+		}
+	};
 
-     // const filteredConnections = useMemo(() => {
-     //      return usersConnection?.filter((connection) => {
-     //           const matchesSearch =
-     //                connection.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     //                connection.jobTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     //                connection.department?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     //                connection.email?.toLowerCase().includes(searchTerm.toLowerCase());
+	const handleDecline = async (connectionId: string) => {
+		try {
+			const res = await fetch("https://skillswap-platform-ovuw.onrender.com/api/connections/decline", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ connectionId }),
+			});
+			if (res.ok) {
+				toast.info("Connection declined");
+				setIncomingRequests((prev) => prev.filter((c) => c.id !== connectionId));
+			}
+		} catch {
+			toast.error("Something went wrong");
+		}
+	};
 
-     //           const matchesDepartment =
-     //                selectedDepartment === "All Departments" || connection.department === selectedDepartment;
+	if (loading) return (
+		<div className="min-h-screen bg-[#030712] flex items-center justify-center">
+			<div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+		</div>
+	);
 
-     //           return matchesSearch && matchesDepartment;
-     //      });
-     // }, [searchTerm, selectedDepartment, usersConnection]);
+	if (error) return (
+		<div className="min-h-screen bg-[#030712] flex items-center justify-center text-white">
+			<p>Failed to fetch connections. Please try again later.</p>
+		</div>
+	);
 
-     const handleRowSelect = (id: string) => {
-          setSelectedRows((prev) => (prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]));
-     };
+	return (
+		<div className="min-h-screen bg-[#030712] relative isolate overflow-hidden pt-24 pb-12 px-6 lg:px-12 mt-10">
+			{/* Aesthetic Background */}
+			<div className="absolute inset-0 -z-10 h-full w-full bg-[#030712]">
+				<div className="absolute inset-x-0 top-0 -z-10 flex transform-gpu justify-center overflow-hidden blur-3xl pointer-events-none" aria-hidden="true">
+					<div className="aspect-[1108/632] w-[69.25rem] flex-none bg-gradient-to-r from-primary/20 to-[#2563eb]/20 opacity-10" style={{ clipPath: 'polygon(73.6% 51.7%, 91.7% 11.8%, 100% 46.4%, 97.4% 82.2%, 92.5% 84.9%, 75.7% 64%, 55.3% 47.5%, 46.5% 49.4%, 45% 62.9%, 50.3% 87.2%, 21.3% 64.1%, 0.1% 100%, 5.4% 51.1%, 21.4% 63.9%, 58.9% 0.2%, 73.6% 51.7%)' }} />
+				</div>
+			</div>
 
-     // const handleSelectAll = () => {
-     //      setSelectedRows(selectedRows.length === filteredConnections.length ? [] : filteredConnections.map((c) => c.id));
-     // };
+			<div className="max-w-7xl mx-auto space-y-10">
+				{/* Top Header Section */}
+				<div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+					<div className="space-y-2">
+						<div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-wider mb-2">
+							<Users className="w-3 h-3" />
+							Networking
+						</div>
+						<h1 className="text-4xl font-black text-white tracking-tight">
+							My <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Ecosystem</span>
+						</h1>
+						<p className="text-slate-500 max-w-lg">Manage your active connections and knowledge-sharing partnerships in one central hub.</p>
+					</div>
 
-     // const getInitials = (name: string) => {
-     //      return name
-     //           .split(" ")
-     //           .map((n) => n[0])
-     //           .join("")
-     //           .toUpperCase();
-     // };
+					<div className="flex items-center gap-3">
+						<Popover open={showPopover} onOpenChange={(open) => { setShowPopover(open); if (open) fetchIncomingRequests(); }}>
+							<PopoverTrigger asChild>
+								<Button className="bg-white/5 hover:bg-white/10 border-white/10 text-white gap-2 h-12 px-6 rounded-2xl relative transition-all group overflow-hidden">
+									<div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+									<Bell className="w-5 h-5 text-primary" />
+									<span className="font-bold">Invitations</span>
+									{incomingRequests.length > 0 && (
+										<span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-black text-white ring-2 ring-[#030712]">
+											{incomingRequests.length}
+										</span>
+									)}
+								</Button>
+							</PopoverTrigger>
+							<PopoverContent className="w-96 p-0 bg-slate-900/90 backdrop-blur-2xl border-white/10 shadow-2xl overflow-hidden rounded-3xl" align="end">
+								<div className="p-5 border-b border-white/5 bg-white/5">
+									<h4 className="font-black text-white text-sm uppercase tracking-widest flex items-center gap-2">
+										<Plus className="w-4 h-4 text-primary" />
+										Connection Requests
+									</h4>
+								</div>
+								<div className="max-h-[400px] overflow-y-auto">
+									{loadingRequests ? (
+										<div className="p-8 text-center"><div className="w-6 h-6 border-2 border-primary/20 border-t-primary rounded-full animate-spin mx-auto" /></div>
+									) : incomingRequests.length === 0 ? (
+										<div className="p-10 text-center space-y-3">
+											<Users className="w-10 h-10 text-slate-700 mx-auto" />
+											<p className="text-sm text-slate-500">Your inbox is clear! No pending requests.</p>
+										</div>
+									) : (
+										<div className="divide-y divide-white/5">
+											{incomingRequests.map((conn) => (
+												<div key={conn.id} className="p-4 flex items-center gap-4 hover:bg-white/5 transition-colors">
+													<Avatar className="h-10 w-10 border border-white/10">
+														<AvatarImage src={conn.sender.avatarUrl} />
+														<AvatarFallback><UserIcon className="w-5 h-5 text-slate-600" /></AvatarFallback>
+													</Avatar>
+													<div className="flex-1 min-w-0">
+														<p className="text-sm font-bold text-white truncate">{conn.sender.name}</p>
+														<p className="text-xs text-slate-500">Wants to connect</p>
+													</div>
+													<div className="flex gap-2">
+														<Button size="icon" variant="ghost" className="h-8 w-8 rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white" onClick={() => handleAccept(conn.id)}>
+															<CheckCircle2 className="w-4 h-4" />
+														</Button>
+														<Button size="icon" variant="ghost" className="h-8 w-8 rounded-full bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white" onClick={() => handleDecline(conn.id)}>
+															<XCircle className="w-4 h-4" />
+														</Button>
+													</div>
+												</div>
+											))}
+										</div>
+									)}
+								</div>
+							</PopoverContent>
+						</Popover>
+					</div>
+				</div>
 
-     //  const { user: currentUser } = useAuthUser();
-     const [showPopover, setShowPopover] = useState(false);
-     const [incomingRequests, setIncomingRequests] = useState<IncomingRequest[]>([]);
-     const [loadingRequests, setLoadingRequests] = useState(false);
-
-     useEffect(() => {
-          if (!currentUser?.id) {
-               return;
-          }
-          const fetchIncoming = async () => {
-               try {
-                    const res = await fetch(
-                         `https://skillswap-platform-ovuw.onrender.com/api/connections/requests/incoming/${currentUser?.id}`
-                    );
-                    const data = await res.json();
-
-                    if (res.ok) {
-                         setIncomingRequests(data || []);
-                    } else {
-                         toast.error(data.message || "Failed to load invitations");
-                    }
-               } catch (err) {
-                    console.error(err);
-                    toast.error("Something went wrong");
-               }
-          };
-          //  if (!currentUser?.id) {
-
-          //  }
-          // if (currentUser?.id) {
-          fetchIncoming();
-          // }
-     }, [currentUser?.id]);
-
-     const fetchIncomingRequests = async () => {
-          if (!currentUser?.id) return;
-          setLoadingRequests(true);
-          try {
-               const res = await fetch(
-                    `https://skillswap-platform-ovuw.onrender.com/api/connections/requests/incoming/${currentUser.id}`
-               );
-               const data = await res.json();
-
-               setIncomingRequests(data || []);
-          } catch (err) {
-               toast.error("Failed to load connection requests");
-               console.log(err);
-          } finally {
-               setLoadingRequests(false);
-          }
-     };
-
-     const handleAccept = async (connectionId: string) => {
-          try {
-               const res = await fetch("https://skillswap-platform-ovuw.onrender.com/api/connections/accept", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ connectionId }),
-               });
-
-               if (res.ok) {
-                    toast.success("Connection accepted");
-                    setIncomingRequests((prev) => prev.filter((c) => c.id !== connectionId));
-
-                    // ✅ Re-fetch the accepted connections to update the table
-                    const updated = await fetch(
-                         `https://skillswap-platform-ovuw.onrender.com/api/connections/${currentUser?.id}`
-                    );
-                    const data = await updated.json();
-                    setUsersConnection?.(data);
-               } else {
-                    const error = await res.json();
-                    toast.error(error.message || "Failed to accept");
-               }
-          } catch {
-               toast.error("Something went wrong");
-          }
-     };
-
-     const handleDecline = async (connectionId: string) => {
-          try {
-               const res = await fetch("https://skillswap-platform-ovuw.onrender.com/api/connections/decline", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ connectionId }),
-               });
-
-               if (res.ok) {
-                    toast.info("Connection declined");
-                    setIncomingRequests((prev) => prev.filter((c) => c.id !== connectionId));
-               } else {
-                    const error = await res.json();
-                    toast.error(error.message || "Failed to decline");
-               }
-          } catch {
-               toast.error("Something went wrong");
-          }
-     };
-
-     if (loading) return <p>Loading...</p>;
-     if (error) return <p>Failed to fetch user connection </p>;
-     return (
-          <div className="bg-white rounded-lg shadow-sm border">
-               {/* Header */}
-               <div className="p-6 border-b">
-                    <div className="flex items-center justify-between">
-                         <div className="flex items-center gap-4">
-                              {/* <div className="relative">
-                                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                                   <Input
-                                        placeholder="Search"
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="pl-10 w-80"
-                                   />
-                              </div> */}
-                              {/* <SearchBar
-                                   handleUserSearch={(e: React.ChangeEvent<HTMLInputElement>) =>
-                                        setSearchTerm(e.target.value)
-                                   }
-                              /> */}
-                              {/* <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
-                                   <SelectTrigger className="w-48">
-                                        <Filter className="h-4 w-4 mr-2" />
-                                        <SelectValue placeholder="Filters" />
-                                   </SelectTrigger>
-                                   <SelectContent>
-                                        {departments.map((dept) => (
-                                             <SelectItem key={dept} value={dept}>
-                                                  {dept}
-                                             </SelectItem>
-                                        ))}
-                                   </SelectContent>
-                              </Select> */}
-                         </div>
-                         <Popover
-                              open={showPopover}
-                              onOpenChange={(open) => {
-                                   setShowPopover(open);
-                                   if (open) fetchIncomingRequests();
-                              }}
-                         >
-                              <PopoverTrigger asChild>
-                                   <div className="relative inline-block">
-                                        <Button className="bg-blue-600 cursor-pointer hover:bg-blue-700 pr-4 pl-4">
-                                             My Invitations
-                                        </Button>
-
-                                        {incomingRequests.length > 0 && (
-                                             <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow-sm">
-                                                  {incomingRequests.length}
-                                             </span>
-                                        )}
-                                   </div>
-                              </PopoverTrigger>
-
-                              <PopoverContent className="w-80 p-4">
-                                   <h4 className="font-semibold mb-2">Incoming Requests</h4>
-
-                                   {loadingRequests ? (
-                                        <p className="text-sm text-gray-500">Loading...</p>
-                                   ) : incomingRequests.length === 0 ? (
-                                        <p className="text-sm text-gray-500">No pending requests</p>
-                                   ) : (
-                                        <div className="max-h-60 overflow-y-auto space-y-3">
-                                             {incomingRequests.map((conn) => (
-                                                  <div key={conn.id} className="border p-2 rounded-md">
-                                                       <p className="text-sm font-medium">{conn.sender.name}</p>
-                                                       <div className="flex gap-2 mt-2">
-                                                            <Button
-                                                                 variant="default"
-                                                                 size="sm"
-                                                                 onClick={() => handleAccept(conn.id)}
-                                                            >
-                                                                 Accept
-                                                            </Button>
-                                                            <Button
-                                                                 variant="outline"
-                                                                 size="sm"
-                                                                 onClick={() => handleDecline(conn.id)}
-                                                            >
-                                                                 Decline
-                                                            </Button>
-                                                       </div>
-                                                  </div>
-                                             ))}
-                                        </div>
-                                   )}
-                              </PopoverContent>
-                         </Popover>
-                    </div>
-               </div>
-
-               {/* Table */}
-               <div className="overflow-x-auto">
-                    <table className="w-full">
-                         <thead className="bg-gray-50">
-                              <tr>
-                                   
-                                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        connection Name
-                                   </th>
-                                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Job Title
-                                   </th>
-                                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Profession
-                                   </th>
-                                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Skill Offered
-                                   </th>
-                                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Skill Wanted
-                                   </th>
-                                   <th className="w-12 px-6 py-3"></th>
-                              </tr>
-                         </thead>
-                         <tbody className="bg-white divide-y divide-gray-200">
-                              {usersConnection && usersConnection.length > 0 ? (
-                                   usersConnection?.map((connection: UserConnection) => {
-                                        return (
-                                             <tr
-                                                  className="hover:bg-gray-50 cursor-pointer"
-                                                  key={connection.id}
-                                                  onClick={() => router.push(`/frontend/connections/${connection.user.id}`)}
-                                             >
-                                                  <td className="px-6 py-4 whitespace-nowrap">
-                                                       <Checkbox
-                                                            checked={selectedRows.includes(connection.id)}
-                                                            onCheckedChange={() => handleRowSelect(connection.id)}
-                                                       />
-                                                  </td>
-                                                  <td className="px-6 py-4 whitespace-nowrap">
-                                                       <div className="flex items-center">
-                                                            <Avatar className="h-8 w-8 mr-3">
-                                                                 <AvatarImage
-                                                                      src={connection.avatar}
-                                                                      alt={connection.name}
-                                                                 />
-                                                                 {/* <AvatarFallback className="text-xs">
-                                                                 {getInitials(connection?.name)}
-                                                            </AvatarFallback> */}
-                                                            </Avatar>
-                                                            <div className="text-sm font-medium text-gray-900">
-                                                                 {connection?.user?.name}
-                                                            </div>
-                                                       </div>
-                                                  </td>
-                                                  <td className="px-6 py-4 whitespace-nowrap">
-                                                       <div className="text-sm text-gray-900">software engineer</div>
-                                                  </td>
-                                                  <td className="px-6 py-4 whitespace-nowrap">
-                                                       <Badge className={getDepartmentColor(connection.department)}>
-                                                            {connection.department}
-                                                       </Badge>
-                                                  </td>
-                                                  <td className="px-6 py-4 whitespace-nowrap">
-                                                       {connection?.user?.skillsOffered?.map(
-                                                            (item: Skill) => (
-                                                                 <div key={item.name} className="text-sm text-gray-900">
-                                                                      {item.name}
-                                                                 </div>
-                                                            )
-                                                       )}
-                                                  </td>
-                                                  <td className="px-6 py-4 whitespace-nowrap">
-                                                       {connection?.user?.skillsWanted?.map((item: Skill) => (
-                                                            <div key={item.name} className="text-sm text-gray-900">
-                                                                 {item.name}
-                                                            </div>
-                                                       ))}
-                                                  </td>
-                                                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                       <DropdownMenu>
-                                                            <DropdownMenuTrigger asChild>
-                                                                 <Button variant="ghost" className="h-8 w-8 p-0">
-                                                                      <MoreHorizontal className="h-4 w-4" />
-                                                                 </Button>
-                                                            </DropdownMenuTrigger>
-                                                            <DropdownMenuContent align="end">
-                                                                 <DropdownMenuItem>Edit</DropdownMenuItem>
-                                                                 <DropdownMenuItem>View Details</DropdownMenuItem>
-                                                                 <DropdownMenuItem className="text-red-600">
-                                                                      Delete
-                                                                 </DropdownMenuItem>
-                                                            </DropdownMenuContent>
-                                                       </DropdownMenu>
-                                                  </td>
-                                             </tr>
-                                        );
-                                   })
-                              ) : (
-                                   <tr>
-                                        <td colSpan={7} className="text-center py-4 text-gray-500">
-                                             You have no connections.
-                                        </td>
-                                   </tr>
-                              )}
-                         </tbody>
-                    </table>
-               </div>
-
-               {/* Pagination */}
-               {/* <div className="px-6 py-3 border-t bg-gray-50">
-                    <div className="flex items-center justify-between">
-                         <div className="flex items-center gap-2">
-                              <span className="text-sm text-gray-700">1-8 of {filteredConnections.length}</span>
-                              <span className="text-sm text-gray-500">Rows per page:</span>
-                              <Select
-                                   value={rowsPerPage.toString()}
-                                   onValueChange={(value) => setRowsPerPage(Number(value))}
-                              >
-                                   <SelectTrigger className="w-20">
-                                        <SelectValue />
-                                   </SelectTrigger>
-                                   <SelectContent>
-                                        <SelectItem value="10">10</SelectItem>
-                                        <SelectItem value="25">25</SelectItem>
-                                        <SelectItem value="50">50</SelectItem>
-                                   </SelectContent>
-                              </Select>
-                         </div>
-                         <div className="flex items-center gap-2">
-                              <Button variant="outline" size="sm" disabled>
-                                   Back
-                              </Button>
-                              <div className="flex gap-1">
-                                   {[1, 2, 3, 4, 5, 6].map((page) => (
-                                        <Button
-                                             key={page}
-                                             variant={page === 1 ? "default" : "outline"}
-                                             size="sm"
-                                             className="w-8 h-8"
-                                        >
-                                             {page}
-                                        </Button>
-                                   ))}
-                              </div>
-                              <Button variant="outline" size="sm">
-                                   Next
-                              </Button>
-                         </div>
-                    </div>
-               </div> */}
-          </div>
-     );
+				{/* Table Container */}
+				<Card className="bg-white/[0.02] border-white/[0.08] backdrop-blur-xl shadow-2xl rounded-3xl overflow-hidden ring-1 ring-white/5 will-change-transform">
+					<div className="overflow-x-auto">
+						<table className="w-full border-collapse">
+							<thead>
+								<tr className="bg-white/[0.03] border-b border-white/[0.05]">
+									<th className="px-8 py-5 text-left text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Partner</th>
+									<th className="px-8 py-5 text-left text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Specialization</th>
+									<th className="px-8 py-5 text-left text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Knowledge to Gain</th>
+									<th className="px-8 py-5 text-left text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Contact</th>
+									<th className="w-20 py-5"></th>
+								</tr>
+							</thead>
+							<tbody className="divide-y divide-white/[0.05]">
+								{usersConnection && usersConnection.length > 0 ? (
+									usersConnection.map((connection: UserConnection) => (
+										<tr 
+											key={connection.id}
+											onClick={() => router.push(`/frontend/connections/${connection.user.id}`)}
+											className="group hover:bg-white/[0.03] transition-all cursor-pointer"
+										>
+											<td className="px-8 py-6 whitespace-nowrap">
+												<div className="flex items-center gap-4">
+													<Avatar className="h-12 w-12 rounded-2xl border-2 border-slate-900 ring-1 ring-white/10 group-hover:ring-primary/50 transition-all shadow-lg overflow-hidden">
+														<AvatarImage src={connection.avatar} className="object-cover" />
+														<AvatarFallback className="bg-slate-800 text-slate-400 font-bold">{connection.user.name[0]}</AvatarFallback>
+													</Avatar>
+													<div className="space-y-0.5">
+														<div className="text-base font-black text-white group-hover:text-primary transition-colors uppercase">{connection.user.name}</div>
+														<div className="text-xs text-slate-500 flex items-center gap-1">
+															<Briefcase className="w-3 h-3" />
+															{connection.jobTitle || "Knowledge Seeker"}
+														</div>
+													</div>
+												</div>
+											</td>
+											<td className="px-8 py-6 whitespace-nowrap">
+												<div className="flex flex-wrap gap-1.5 max-w-[200px]">
+													{connection.user.skillsOffered?.slice(0, 2).map((skill) => (
+														<Badge key={skill.name} className="bg-primary/10 text-primary border-primary/20 text-[10px] py-1 px-2 rounded-lg font-bold">
+															{skill.name}
+														</Badge>
+													)) || <span className="text-slate-600 text-xs italic">No skills listed</span>}
+												</div>
+											</td>
+											<td className="px-8 py-6 whitespace-nowrap text-slate-400 text-sm">
+												<div className="flex flex-wrap gap-1.5 max-w-[200px]">
+													{connection.user.skillsWanted?.slice(0, 2).map((skill) => (
+														<Badge key={skill.name} className="bg-accent/10 text-accent border-accent/20 text-[10px] py-1 px-2 rounded-lg font-bold">
+															{skill.name}
+														</Badge>
+													)) || <span className="text-slate-600 text-xs italic">Open to anything</span>}
+												</div>
+											</td>
+											<td className="px-8 py-6 whitespace-nowrap">
+                                                <div className="space-y-1">
+                                                    <div className="text-xs text-slate-300 flex items-center gap-2">
+                                                        <Mail className="w-3 h-3 text-primary" />
+                                                        {connection.email || "Private Email"}
+                                                    </div>
+                                                    <div className="text-xs text-slate-500 flex items-center gap-2">
+                                                        <MapPin className="w-3 h-3 text-accent" />
+                                                        {connection.department || "Global"}
+                                                    </div>
+                                                </div>
+											</td>
+											<td className="px-8 py-6 text-right" onClick={(e) => e.stopPropagation()}>
+												<DropdownMenu>
+													<DropdownMenuTrigger asChild>
+														<Button variant="ghost" className="h-10 w-10 p-0 rounded-xl hover:bg-white/10 text-slate-500 hover:text-white transition-all">
+															<MoreHorizontal className="h-5 w-5" />
+														</Button>
+													</DropdownMenuTrigger>
+													<DropdownMenuContent align="end" className="bg-slate-900 border-white/10 text-white rounded-2xl p-1 shadow-2xl">
+														<DropdownMenuItem className="rounded-xl focus:bg-primary focus:text-white cursor-pointer" onClick={() => router.push(`/frontend/connections/${connection.user.id}`)}>
+															View Profile
+														</DropdownMenuItem>
+														<DropdownMenuItem className="rounded-xl focus:bg-primary focus:text-white cursor-pointer">
+															Send Message
+														</DropdownMenuItem>
+														<Separator className="my-1 bg-white/5" />
+														<DropdownMenuItem className="rounded-xl focus:bg-red-500 focus:text-white text-red-500 cursor-pointer">
+															Archive Partner
+														</DropdownMenuItem>
+													</DropdownMenuContent>
+												</DropdownMenu>
+											</td>
+										</tr>
+									))
+								) : (
+									<tr>
+										<td colSpan={5} className="py-24 text-center">
+											<div className="flex flex-col items-center space-y-4">
+												<Users className="w-16 h-16 text-slate-800" />
+												<div className="space-y-1">
+													<p className="text-xl font-black text-slate-500">No active knowledge partners</p>
+													<p className="text-sm text-slate-600">Start exploring the community to build your ecosystem.</p>
+												</div>
+												<Button onClick={() => router.push("/")} className="mt-4 bg-primary text-white font-bold h-12 px-8 rounded-2xl shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95">
+													Explore Community
+												</Button>
+											</div>
+										</td>
+									</tr>
+								)}
+							</tbody>
+						</table>
+					</div>
+				</Card>
+			</div>
+		</div>
+	);
 }
