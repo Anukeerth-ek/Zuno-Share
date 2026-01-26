@@ -11,34 +11,50 @@ const handler = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        const BASE_URL = getBaseUrl();
-        const res = await fetch(`${BASE_URL}/api/auth/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: credentials?.email,
-            password: credentials?.password,
-          }),
-        });
+        try {
+          const BASE_URL = getBaseUrl();
+          const res = await fetch(`${BASE_URL}/api/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: credentials?.email,
+              password: credentials?.password,
+            }),
+          });
 
-        const data = await res.json();
+          if (!res.ok) {
+            console.error("Login request failed with status:", res.status);
+            return null;
+          }
 
-        if (!res.ok || !data?.user) return null;
+          const data = await res.json();
 
-        // 🧠 Attach the token payload to session
-        return {
-          id: data.user._id,
-          name: data.user.name,
-          email: data.user.email,
-          avatarUrl: data.user.avatarUrl,
-        };
+          if (!data?.user) {
+            console.error("Login successful but no user data returned");
+            return null;
+          }
+
+          // 🧠 Attach the token payload to session
+          return {
+            id: data.user.id || data.user._id, // Handle both id and _id
+            name: data.user.name,
+            email: data.user.email,
+            avatarUrl: data.user.avatarUrl,
+          };
+        } catch (error) {
+          console.error("NextAuth authorize error:", error);
+          return null;
+        }
       },
     }),
   ],
   session: {
     strategy: "jwt",
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || "development-secret-only",
+  pages: {
+    signIn: "/login",
+  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
