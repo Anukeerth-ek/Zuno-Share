@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Home, BookOpen, Users, MessageCircle, Bell, LogOut, Settings, ChevronDown } from "lucide-react";
+import { Home, BookOpen, Users, Bell, LogOut, Settings, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useGetMyProfile } from "@/app/hooks/useGetMyProfile";
