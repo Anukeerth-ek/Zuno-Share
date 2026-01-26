@@ -1,123 +1,119 @@
 import { Request, Response } from "express";
-import pool from "../config/db"; // PostgreSQL pool
+import prisma from "../prismaClient";
 
 export const getFilteredProfile = async (req: Request, res: Response) => {
-     const { search, company, professional, experience, sort } = req.query;
+	const { search, company, professional, experience, sort } = req.query;
 
-     let query = `
-    SELECT
-      u.id,
-      u.name,
-      u.email,
-      u."avatarUrl",
-      u."createdAt",
-      jsonb_build_object(
-        'organization', co.organization
-      ) AS "currentOrganization",
-      jsonb_build_object(
-        'years', es.years,
-        'description', es.description
-      ) AS "experienceSummary",
-      jsonb_build_object(
-        'title', pd.title
-      ) AS "professionDetails",
-      COALESCE(
-        jsonb_agg(DISTINCT jsonb_build_object(
-          'id', so.id,
-          'name', so.name,
-          'category', so.category
-        )) FILTER (WHERE so.id IS NOT NULL),
-        '[]'
-      ) AS "skillsOffered",
-      COALESCE(
-        jsonb_agg(DISTINCT jsonb_build_object(
-          'id', sw.id,
-          'name', sw.name,
-          'category', sw.category
-        )) FILTER (WHERE sw.id IS NOT NULL),
-        '[]'
-      ) AS "skillsWanted"
-    FROM "User" u
-    LEFT JOIN "UserCurrentOrganization" co ON co."userId" = u.id
-    LEFT JOIN "UserExperienceSummary" es ON es."userId" = u.id
-    LEFT JOIN "UserProfessionDetails" pd ON pd."userId" = u.id
+     const where: any = {};
+     
+	if (search) {
+		where.OR = [
+			{ name: { contains: search as string, mode: "insensitive" } },
+			{
+				skillsOffered: {
+					some: { name: { contains: search as string, mode: "insensitive" } },
+				},
+			},
+			{
+				skillsWanted: {
+					some: { name: { contains: search as string, mode: "insensitive" } },
+				},
+			},
+		];
+	}
 
-    -- offered skills (flip join: B = user, A = skill)
-    LEFT JOIN "_SkillsOffered" uso ON uso."B" = u.id
-    LEFT JOIN "Skill" so ON so.id = uso."A"
+	if (company) {
+		where.currentOrganization = {
+			organization: { contains: company as string, mode: "insensitive" },
+		};
+	}
 
-    -- wanted skills (flip join: B = user, A = skill)
-    LEFT JOIN "_SkillsWanted" usw ON usw."B" = u.id
-    LEFT JOIN "Skill" sw ON sw.id = usw."A"
+	if (professional) {
+		const profs = (professional as string).split(",");
+		where.professionDetails = {
+			title: { in: profs },
+		};
+	}
 
-    WHERE 1=1
-  `;
+	if (experience) {
+		const exps = (experience as string).split(",");
+		const expConditions: any[] = [];
 
-     const values: any[] = [];
-     let i = 1;
+		for (const range of exps) {
+			if (range.includes("-")) {
+				const [min, max] = range.split("-").map(Number);
+				expConditions.push({
+					experienceSummary: {
+						years: { gte: min, lte: max },
+					},
+				});
+			} else if (range.endsWith("+")) {
+				const min = parseInt(range);
+				expConditions.push({
+					experienceSummary: {
+						years: { gte: min },
+					},
+				});
+			}
+		}
 
-     // 🔍 Search across user + skill names
-     if (search) {
-          query += ` AND (LOWER(u.name) LIKE $${i} OR LOWER(so.name) LIKE $${i} OR LOWER(sw.name) LIKE $${i})`;
-          values.push(`%${(search as string).toLowerCase()}%`);
-          i++;
-     }
+		if (expConditions.length > 0) {
+			if (where.AND) {
+				where.AND.push({ OR: expConditions });
+			} else {
+				where.AND = [{ OR: expConditions }];
+			}
+		}
+	}
 
-     // 🔍 Filter by company
-     if (company) {
-          query += ` AND LOWER(co.organization) LIKE $${i}`;
-          values.push(`%${(company as string).toLowerCase()}%`);
-          i++;
-     }
+	let orderBy: any = {};
+	if (sort === "least-experienced") {
+		orderBy = { experienceSummary: { years: "asc" } };
+	} else if (sort === "recent-added-profile") {
+		orderBy = { createdAt: "desc" };
+	} else {
+		orderBy = { experienceSummary: { years: "desc" } };
+	}
 
-     // 🔍 Filter by professional title (not skill!)
-     if (professional) {
-          const profs = (professional as string).split(",");
-          query += ` AND pd.title = ANY($${i}::text[])`;
-          values.push(profs);
-          i++;
-     }
+	try {
+		const users = await prisma.user.findMany({
+			where,
+			include: {
+				currentOrganization: {
+					select: { organization: true },
+				},
+				experienceSummary: {
+					select: { years: true, description: true },
+				},
+				professionDetails: {
+					select: { title: true },
+				},
+				skillsOffered: {
+					select: { id: true, name: true, category: true },
+				},
+				skillsWanted: {
+					select: { id: true, name: true, category: true },
+				},
+			},
+			orderBy,
+          });
+          
+		const result = users.map((u) => ({
+			id: u.id,
+			name: u.name,
+			email: u.email,
+			avatarUrl: u.avatarUrl,
+			createdAt: u.createdAt,
+			currentOrganization: u.currentOrganization || { organization: null },
+			experienceSummary: u.experienceSummary || { years: null, description: null },
+			professionDetails: u.professionDetails || { title: null },
+			skillsOffered: u.skillsOffered || [],
+			skillsWanted: u.skillsWanted || [],
+		}));
 
-     // 🔍 Filter by experience ranges
-     if (experience) {
-          const exps = (experience as string).split(",");
-          const expClauses: string[] = [];
-          for (const range of exps) {
-               if (range.includes("-")) {
-                    const [min, max] = range.split("-").map(Number);
-                    expClauses.push(`es.years BETWEEN $${i} AND $${i + 1}`);
-                    values.push(min, max);
-                    i += 2;
-               } else if (range.endsWith("+")) {
-                    const min = parseInt(range);
-                    expClauses.push(`es.years >= $${i}`);
-                    values.push(min);
-                    i++;
-               }
-          }
-          if (expClauses.length) {
-               query += ` AND (${expClauses.join(" OR ")})`;
-          }
-     }
-
-     query += `
-    GROUP BY u.id, co.organization, es.years, es.description, pd.title
-  `;
-
-     // 🔍 Sorting
-     if (sort === "least-experienced") {
-          query += ` ORDER BY es.years ASC NULLS LAST`;
-     } else if (sort === "recent-added-profile") {
-          query += ` ORDER BY u."createdAt" DESC`;
-     } else {
-          query += ` ORDER BY es.years DESC NULLS LAST`;
-     }
-
-     try {
-          const { rows } = await pool.query(query, values);
-          res.json({ users: rows });
-     } catch (err) {
-          console.error("❌ DB Error:", err);
-          res.status(500).json({ error: "Database error" });
-     }
+		res.json({ users: result });
+	} catch (err) {
+		console.error("❌ Prisma Error:", err);
+		res.status(500).json({ error: "Database error" });
+	}
 };
