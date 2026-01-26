@@ -1,501 +1,431 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Plus, X, Clock, Book, Lightbulb } from "lucide-react";
+import { Plus, X, Clock, Book, Lightbulb, User as UserIcon, Building2, Briefcase, Camera, Save, MapPin, Sparkles, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-// import { User } from "../../types";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 const ProfileCreatePage = () => {
-     const router = useRouter();
+	const router = useRouter();
 
-     type ProfileData = {
-          name: string;
-          bio: string;
-          avatarUrl: string;
-          timeZone: string;
-          professionDetails: { title: string };
-          currentOrganization: { organization: string };
-          experienceSummary: { years: string };
-          skillsOffered: string[];
-          skillsWanted: string[];
-     };
+	type ProfileData = {
+		name: string;
+		bio: string;
+		avatarUrl: string;
+		timeZone: string;
+		professionDetails: { title: string };
+		currentOrganization: { organization: string };
+		experienceSummary: { years: string };
+		skillsOffered: string[];
+		skillsWanted: string[];
+	};
 
-     interface UserProfileApiResponse {
-          name?: string;
-          bio?: string;
-          avatarUrl?: string;
-          timeZone?: string;
-          professionDetails?: { title?: string };
-          currentOrganization?: { organization?: string };
-          experienceSummary?: { years?: number };
-          skillsOffered?: { name: string }[];
-          skillsWanted?: { name: string }[];
-     }
+	interface UserProfileApiResponse {
+		name?: string;
+		bio?: string;
+		avatarUrl?: string;
+		timeZone?: string;
+		professionDetails?: { title?: string };
+		currentOrganization?: { organization?: string };
+		experienceSummary?: { years?: number };
+		skillsOffered?: { name: string }[];
+		skillsWanted?: { name: string }[];
+	}
 
-     const [formData, setFormData] = useState<ProfileData>({
-          name: "",
-          bio: "",
-          avatarUrl: "",
-          timeZone: "",
-          professionDetails: { title: "" },
-          currentOrganization: { organization: "" },
-          experienceSummary: { years: "" },
-          skillsOffered: [],
-          skillsWanted: [],
-     });
+	const [formData, setFormData] = useState<ProfileData>({
+		name: "",
+		bio: "",
+		avatarUrl: "",
+		timeZone: "",
+		professionDetails: { title: "" },
+		currentOrganization: { organization: "" },
+		experienceSummary: { years: "" },
+		skillsOffered: [],
+		skillsWanted: [],
+	});
 
-     const [newSkillOffered, setNewSkillOffered] = useState("");
-     const [newSkillNeeded, setNewSkillNeeded] = useState("");
-     const [isSubmitting, setIsSubmitting] = useState(false);
-     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-     const [isEdit, setIsEdit] = useState(false);
+	const [newSkillOffered, setNewSkillOffered] = useState("");
+	const [newSkillNeeded, setNewSkillNeeded] = useState("");
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+	const [isEdit, setIsEdit] = useState(false);
 
-     useEffect(() => {
-          const avatarInput = document.getElementById("avatarFile") as HTMLInputElement;
-          avatarInput?.addEventListener("change", () => {
-               if (avatarInput.files?.[0]) {
-                    const file = avatarInput.files[0];
-                    setAvatarPreview(URL.createObjectURL(file));
-               }
-          });
-     }, []);
+	useEffect(() => {
+		const avatarInput = document.getElementById("avatarFile") as HTMLInputElement;
+		avatarInput?.addEventListener("change", () => {
+			if (avatarInput.files?.[0]) {
+				const file = avatarInput.files[0];
+				setAvatarPreview(URL.createObjectURL(file));
+			}
+		});
+	}, []);
 
-     const commonTimezones = [
-          "UTC",
-          "America/New_York",
-          "America/Los_Angeles",
-          "America/Chicago",
-          "Europe/London",
-          "Europe/Paris",
-          "Europe/Berlin",
-          "Asia/Tokyo",
-          "Asia/Shanghai",
-          "Asia/Dubai",
-          "Australia/Sydney",
-          "Asia/Kolkata",
-     ];
+	const commonTimezones = [
+		"UTC", "America/New_York", "America/Los_Angeles", "America/Chicago",
+		"Europe/London", "Europe/Paris", "Europe/Berlin", "Asia/Tokyo",
+		"Asia/Shanghai", "Asia/Dubai", "Australia/Sydney", "Asia/Kolkata",
+	];
 
-     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>): void => {
-          const { name, value } = e.target;
+	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>): void => {
+		const { name, value } = e.target;
 
-          setFormData((prev) => {
-               if (name === "professionTitle") {
-                    return { ...prev, professionDetails: { title: value } };
-               }
-               if (name === "organization") {
-                    return { ...prev, currentOrganization: { organization: value } };
-               }
-               if (name === "experienceYears") {
-                    return { ...prev, experienceSummary: { years: value } };
-               }
-               return { ...prev, [name]: value }; // fallback for simple fields
-          });
-     };
+		setFormData((prev) => {
+			if (name === "professionTitle") {
+				return { ...prev, professionDetails: { title: value } };
+			}
+			if (name === "organization") {
+				return { ...prev, currentOrganization: { organization: value } };
+			}
+			if (name === "experienceYears") {
+				return { ...prev, experienceSummary: { years: value } };
+			}
+			return { ...prev, [name]: value };
+		});
+	};
 
-     const addSkillOffered = () => {
-          if (newSkillOffered.trim() && !formData.skillsOffered.includes(newSkillOffered.trim())) {
-               setFormData((prev) => ({
-                    ...prev,
-                    skillsOffered: [...prev.skillsOffered, newSkillOffered.trim()],
-               }));
-               setNewSkillOffered("");
-          }
-     };
+	const addSkillOffered = () => {
+		if (newSkillOffered.trim() && !formData.skillsOffered.includes(newSkillOffered.trim())) {
+			setFormData((prev) => ({
+				...prev,
+				skillsOffered: [...prev.skillsOffered, newSkillOffered.trim()],
+			}));
+			setNewSkillOffered("");
+		}
+	};
 
-     const removeSkillOffered = (skillToRemove: string) => {
-          setFormData((prev) => ({
-               ...prev,
-               skillsOffered: prev.skillsOffered.filter((skill) => skill !== skillToRemove),
-          }));
-     };
+	const removeSkillOffered = (skillToRemove: string) => {
+		setFormData((prev) => ({
+			...prev,
+			skillsOffered: prev.skillsOffered.filter((skill) => skill !== skillToRemove),
+		}));
+	};
 
-     const addSkillNeeded = () => {
-          if (newSkillNeeded.trim() && !formData.skillsWanted.includes(newSkillNeeded.trim())) {
-               setFormData((prev) => ({
-                    ...prev,
-                    skillsWanted: [...prev.skillsWanted, newSkillNeeded.trim()],
-               }));
-               setNewSkillNeeded("");
-          }
-     };
+	const addSkillNeeded = () => {
+		if (newSkillNeeded.trim() && !formData.skillsWanted.includes(newSkillNeeded.trim())) {
+			setFormData((prev) => ({
+				...prev,
+				skillsWanted: [...prev.skillsWanted, newSkillNeeded.trim()],
+			}));
+			setNewSkillNeeded("");
+		}
+	};
 
-     const removeSkillNeeded = (skillToRemove: string) => {
-          setFormData((prev) => ({
-               ...prev,
-               skillsWanted: prev.skillsWanted.filter((skill) => skill !== skillToRemove),
-          }));
-     };
+	const removeSkillNeeded = (skillToRemove: string) => {
+		setFormData((prev) => ({
+			...prev,
+			skillsWanted: prev.skillsWanted.filter((skill) => skill !== skillToRemove),
+		}));
+	};
 
-     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
-          e.preventDefault();
-          setIsSubmitting(true);
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+		e.preventDefault();
+		setIsSubmitting(true);
 
-          try {
-               const token = localStorage.getItem("token");
-               if (!token) {
-                    console.error("No auth token found");
-                    return;
-               }
+		try {
+			const token = localStorage.getItem("token");
+			if (!token) return;
 
-               const avatarFileInput = document.getElementById("avatarFile") as HTMLInputElement;
-               const avatarFile = avatarFileInput?.files?.[0];
+			const avatarFileInput = document.getElementById("avatarFile") as HTMLInputElement;
+			const avatarFile = avatarFileInput?.files?.[0];
 
-               const formDataToSend = new FormData();
-               formDataToSend.append("name", formData.name);
-               formDataToSend.append("bio", formData.bio || "");
-               formDataToSend.append("timeZone", formData.timeZone || "");
+			const formDataToSend = new FormData();
+			formDataToSend.append("name", formData.name);
+			formDataToSend.append("bio", formData.bio || "");
+			formDataToSend.append("timeZone", formData.timeZone || "");
+			formDataToSend.append("professionTitle", formData.professionDetails.title);
+			formDataToSend.append("organization", formData.currentOrganization.organization);
+			formDataToSend.append("experienceYears", formData.experienceSummary.years);
 
-               // ✅ Add nested fields consistently
-               formDataToSend.append("professionTitle", formData.professionDetails.title);
-               formDataToSend.append("organization", formData.currentOrganization.organization);
-               formDataToSend.append("experienceYears", formData.experienceSummary.years);
+			if (avatarFile) formDataToSend.append("avatar", avatarFile);
 
-               if (avatarFile) {
-                    formDataToSend.append("avatar", avatarFile);
-               }
+			formData.skillsOffered.forEach((skill) => formDataToSend.append("skillsOffered[]", skill));
+			formData.skillsWanted.forEach((skill) => formDataToSend.append("skillsWanted[]", skill));
 
-               formData.skillsOffered.forEach((skill) => {
-                    formDataToSend.append("skillsOffered[]", skill);
-               });
+			const url = isEdit ? "https://skillswap-platform-ovuw.onrender.com/api/profile/update" : "https://skillswap-platform-ovuw.onrender.com/api/profile";
 
-               formData.skillsWanted.forEach((skill) => {
-                    formDataToSend.append("skillsWanted[]", skill);
-               });
+			const response = await fetch(url, {
+				method: isEdit ? "PUT" : "POST",
+				headers: { Authorization: `Bearer ${token}` },
+				body: formDataToSend,
+			});
 
-               const url = isEdit ? "https://skillswap-platform-ovuw.onrender.com/api/profile/update" : "https://skillswap-platform-ovuw.onrender.com/api/profile";
+			if (response.ok) router.push("/");
+		} catch (error) {
+			console.error("Error saving profile:", error);
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
 
-               const response = await fetch(url, {
-                    method: isEdit ? "PUT" : "POST",
-                    headers: {
-                         Authorization: `Bearer ${token}`,
-                    },
-                    body: formDataToSend,
-               });
+	useEffect(() => {
+		const fetchProfile = async () => {
+			const token = localStorage.getItem("token");
+			if (!token) {
+				router.push("/");
+				return;
+			}
+			const res = await fetch("https://skillswap-platform-ovuw.onrender.com/api/profile/me", {
+				method: "GET",
+				headers: { Authorization: `Bearer ${token}` },
+			});
 
-               if (response.ok) {
-                    router.push("/");
-               } else {
-                    const errData = await response.json();
-                    console.error("Failed to save profile", errData);
-               }
-          } catch (error) {
-               console.error("Error saving profile:", error);
-          } finally {
-               setIsSubmitting(false);
-          }
-     };
+			const data = await res.json();
+			if (res.ok && data.user) {
+				setIsEdit(true);
+				setFormData({
+					name: data.user.name || "",
+					bio: data.user.bio || "",
+					avatarUrl: data.user.avatarUrl || "",
+					timeZone: data.user.timeZone || "",
+					professionDetails: { title: data.user.professionDetails?.title || "" },
+					currentOrganization: { organization: data.user.currentOrganization?.organization || "" },
+					experienceSummary: { years: data.user.experienceSummary?.years?.toString() || "" },
+					skillsOffered: data.user.skillsOffered?.map((s: any) => s.name) || [],
+					skillsWanted: data.user.skillsWanted?.map((s: any) => s.name) || [],
+				});
+				if (data.user.avatarUrl) setAvatarPreview(data.user.avatarUrl);
+			}
+		};
+		fetchProfile();
+	}, [router]);
 
-     useEffect(() => {
-          const token = localStorage.getItem("token");
-          if (!token) {
-               router.push("/");
-          }
-     }, [router]);
+	return (
+		<div className="min-h-screen bg-[#030712] relative isolate overflow-hidden">
+			{/* Aesthetic Background Elements */}
+			<div className="absolute inset-0 -z-10 h-full w-full bg-[#030712]">
+				<div className="absolute inset-x-0 top-0 -z-10 flex transform-gpu justify-center overflow-hidden blur-3xl pointer-events-none" aria-hidden="true">
+					<div className="aspect-[1108/632] w-[69.25rem] flex-none bg-gradient-to-r from-primary to-[#2563eb] opacity-10" style={{ clipPath: 'polygon(73.6% 51.7%, 91.7% 11.8%, 100% 46.4%, 97.4% 82.2%, 92.5% 84.9%, 75.7% 64%, 55.3% 47.5%, 46.5% 49.4%, 45% 62.9%, 50.3% 87.2%, 21.3% 64.1%, 0.1% 100%, 5.4% 51.1%, 21.4% 63.9%, 58.9% 0.2%, 73.6% 51.7%)' }} />
+				</div>
+			</div>
 
-     useEffect(() => {
-          const fetchProfile = async () => {
-               const token = localStorage.getItem("token");
-               const res = await fetch("https://skillswap-platform-ovuw.onrender.com/api/profile/me", {
-                    method: "GET",
-                    headers: {
-                         Authorization: `Bearer ${token}`,
-                    },
-               });
+			<div className="max-w-7xl mx-auto px-6 lg:px-12 py-24">
+				<div className="flex flex-col lg:flex-row gap-12 items-start">
+					{/* Left Column: Sticky Profile Card */}
+					<aside className="lg:w-1/3 lg:sticky lg:top-28 w-full will-change-transform">
+						<Card className="bg-white/[0.03] backdrop-blur-xl border-white/[0.08] shadow-2xl relative overflow-hidden ring-1 ring-white/10">
+							<div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-br from-primary/20 to-accent/20" />
+							<CardContent className="relative pt-16 flex flex-col items-center">
+								<div className="relative group mb-6">
+									<div className="w-40 h-40 rounded-3xl border-4 border-slate-900 overflow-hidden bg-slate-800 shadow-2xl transition-transform group-hover:scale-[1.02]">
+										{avatarPreview ? (
+											<Image src={avatarPreview} alt="Preview" fill className="object-cover" />
+										) : (
+											<div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900">
+												<UserIcon className="w-20 h-20 text-slate-600" />
+											</div>
+										)}
+									</div>
+									<label htmlFor="avatarFile" className="absolute -bottom-2 -right-2 p-3 bg-primary text-white rounded-2xl cursor-pointer hover:bg-primary/90 transition-all shadow-xl ring-4 ring-[#030712] group-active:scale-95">
+										<Camera className="w-5 h-5" />
+										<input type="file" id="avatarFile" name="avatar" accept="image/*" className="hidden" />
+									</label>
+								</div>
+								
+								<div className="text-center space-y-2 mb-8">
+									<h2 className="text-3xl font-bold text-white tracking-tight">{formData.name || "Your Name"}</h2>
+									<p className="text-primary font-medium">{formData.professionDetails.title || "Profession Title"}</p>
+									<p className="text-slate-500 text-sm max-w-xs mx-auto line-clamp-3 italic">
+										{formData.bio || "Write something about yourself in the bio section..."}
+									</p>
+								</div>
 
-               const data = await res.json();
+								<div className="w-full space-y-4 pt-4">
+									<div className="flex items-center gap-3 text-slate-400 text-sm bg-white/5 p-3 rounded-xl border border-white/5">
+										<Building2 className="w-4 h-4 text-primary" />
+										<span className="truncate">{formData.currentOrganization.organization || "No Organization"}</span>
+									</div>
+									<div className="flex items-center gap-3 text-slate-400 text-sm bg-white/5 p-3 rounded-xl border border-white/5">
+										<MapPin className="w-4 h-4 text-primary" />
+										<span>{formData.timeZone || "No Timezone Selected"}</span>
+									</div>
+								</div>
+							</CardContent>
+						</Card>
+                        
+                        <div className="mt-8 p-6 rounded-2xl bg-gradient-to-br from-primary/10 to-transparent border border-primary/20 flex items-start gap-4">
+                            <Sparkles className="w-6 h-6 text-primary shrink-0 mt-1" />
+                            <div>
+                                <h4 className="text-white font-semibold mb-1">Impact Score</h4>
+                                <p className="text-slate-400 text-sm">Complete your profile to increase your visibility to find better peers.</p>
+                            </div>
+                        </div>
+					</aside>
 
-               if (res.ok && data.user) {
-                    setIsEdit(true);
+					{/* Right Column: Main Form Area */}
+					<main className="lg:w-2/3 w-full space-y-8 will-change-transform">
+						<div className="space-y-2 mb-10">
+							<h1 className="text-5xl font-extrabold text-white tracking-tight">
+								{isEdit ? "Refine. " : "Create. "}
+								<span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Profile</span>
+							</h1>
+							<p className="text-slate-500 text-lg">Detailed information helps you connect with the right skill mates.</p>
+						</div>
 
-                    setFormData({
-                         name: (data.user as UserProfileApiResponse).name || "",
-                         bio: (data.user as UserProfileApiResponse).bio || "",
-                         avatarUrl: (data.user as UserProfileApiResponse).avatarUrl || "",
-                         timeZone: (data.user as UserProfileApiResponse).timeZone || "",
-                         professionDetails: {
-                              title: (data.user as UserProfileApiResponse).professionDetails?.title || "",
-                         },
-                         currentOrganization: {
-                              organization: (data.user as UserProfileApiResponse).currentOrganization?.organization || "",
-                         },
-                         experienceSummary: {
-                              years: (data.user as UserProfileApiResponse).experienceSummary?.years?.toString() || "",
-                         },
-                         skillsOffered: (data.user as UserProfileApiResponse).skillsOffered?.map((s) => s.name) || [],
-                         skillsWanted: (data.user as UserProfileApiResponse).skillsWanted?.map((s) => s.name) || [],
-                    });
+						<form onSubmit={handleSubmit} className="space-y-8">
+							{/* Section 1: Professional Identity */}
+							<Card className="bg-white/[0.02] border-white/[0.08] backdrop-blur-lg overflow-hidden ring-1 ring-white/5 shadow-xl">
+								<CardHeader className="bg-white/[0.02] border-b border-white/[0.05]">
+									<CardTitle className="text-lg font-bold text-white flex items-center gap-2">
+										<ShieldCheck className="w-5 h-5 text-primary" />
+										Professional Identity
+									</CardTitle>
+								</CardHeader>
+								<CardContent className="p-8 space-y-8">
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+										<div className="space-y-3 lowercase">
+											<Label htmlFor="name" className="text-slate-300 font-medium">Display Name *</Label>
+											<Input
+												id="name" name="name" value={formData.name} onChange={handleInputChange} required
+												className="bg-slate-950/40 border-white/10 text-white h-12 focus:ring-primary/50 focus:border-primary transition-all rounded-xl"
+											/>
+										</div>
+										<div className="space-y-3">
+											<Label htmlFor="professionTitle" className="text-slate-300 font-medium">Professional Title *</Label>
+											<Input
+												id="professionTitle" name="professionTitle" value={formData.professionDetails.title} onChange={handleInputChange} required
+												placeholder="Senior Architect, Growth Expert..."
+												className="bg-slate-950/40 border-white/10 text-white h-12 focus:ring-primary/50 focus:border-primary transition-all rounded-xl"
+											/>
+										</div>
+										<div className="space-y-3">
+											<Label htmlFor="organization" className="text-slate-300 font-medium">Workplace / Platform</Label>
+											<Input
+												id="organization" name="organization" value={formData.currentOrganization.organization} onChange={handleInputChange}
+												className="bg-slate-950/40 border-white/10 text-white h-12 rounded-xl"
+											/>
+										</div>
+										<div className="space-y-3">
+											<Label htmlFor="experienceYears" className="text-slate-300 font-medium">Years in Field *</Label>
+											<Input
+												id="experienceYears" name="experienceYears" value={formData.experienceSummary.years} onChange={handleInputChange} required
+												className="bg-slate-950/40 border-white/10 text-white h-12 rounded-xl"
+											/>
+										</div>
+									</div>
+                                    
+                                    <div className="space-y-3">
+										<Label htmlFor="timeZone" className="text-slate-300 font-medium">Standard Timezone</Label>
+										<Select value={formData.timeZone} onValueChange={(v) => setFormData(p => ({ ...p, timeZone: v }))}>
+											<SelectTrigger className="bg-slate-950/40 border-white/10 text-white h-12 rounded-xl">
+												<SelectValue placeholder="Select Timezone" />
+											</SelectTrigger>
+											<SelectContent className="bg-slate-900 border-white/10 text-white">
+												{commonTimezones.map(tz => <SelectItem key={tz} value={tz}>{tz}</SelectItem>)}
+											</SelectContent>
+										</Select>
+									</div>
 
-                    if (data.user.avatarUrl) {
-                         setAvatarPreview(data.user.avatarUrl);
-                    }
-               }
-          };
+									<div className="space-y-3">
+										<Label htmlFor="bio" className="text-slate-300 font-medium">Strategic Bio</Label>
+										<Textarea
+											id="bio" name="bio" value={formData.bio} onChange={handleInputChange}
+											placeholder="Briefly explain your value proposition..."
+											className="bg-slate-950/40 border-white/10 text-white min-h-[120px] rounded-xl"
+										/>
+									</div>
+								</CardContent>
+							</Card>
 
-          fetchProfile();
-     }, []);
+							{/* Section 2: Capability Stack */}
+							<Card className="bg-white/[0.02] border-white/[0.08] backdrop-blur-lg ring-1 ring-white/5 shadow-xl">
+								<CardHeader className="bg-white/[0.02] border-b border-white/[0.05]">
+									<CardTitle className="text-lg font-bold text-white flex items-center gap-2">
+										<Lightbulb className="w-5 h-5 text-accent" />
+										Capability Stack
+									</CardTitle>
+								</CardHeader>
+								<CardContent className="p-8 space-y-12">
+									{/* Skills Offered */}
+									<div className="space-y-5">
+										<div className="flex items-center justify-between">
+											<Label className="text-primary font-bold text-sm uppercase tracking-widest">Mastery To Offer</Label>
+											<span className="text-xs text-slate-500 uppercase tracking-tighter">Add skills you can teach others</span>
+										</div>
+										<div className="flex gap-2">
+											<Input
+												value={newSkillOffered} onChange={(e) => setNewSkillOffered(e.target.value)}
+												onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addSkillOffered())}
+												placeholder="React.js, Strategy, Branding..."
+												className="bg-slate-950/40 border-white/10 text-white h-12 rounded-xl"
+											/>
+											<Button type="button" onClick={addSkillOffered} className="bg-primary hover:bg-primary/90 text-white h-12 px-6 rounded-xl font-bold">
+												<Plus className="w-5 h-5" />
+											</Button>
+										</div>
+										<div className="flex flex-wrap gap-2 pt-2">
+											{formData.skillsOffered.map((skill, i) => (
+												<Badge key={i} className="bg-primary/10 text-primary border-primary/20 py-2 px-4 rounded-xl text-sm font-semibold flex items-center gap-2">
+													{skill}
+													<X className="w-4 h-4 cursor-pointer hover:text-white" onClick={() => removeSkillOffered(skill)} />
+												</Badge>
+											))}
+										</div>
+									</div>
 
-     return (
-          <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
-               <div className="max-w-2xl mx-auto">
-                    <div className="bg-white rounded-2xl shadow-xl p-8">
-                         <div className="text-center mb-8">
-                              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                                   {/* <User className="w-8 h-8 text-white" /> */}
-                              </div>
-                              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                                   {" "}
-                                   {isEdit ? "Edit Your Profile" : "Create Your Profile"}
-                              </h1>
-                              <p className="text-gray-600">Share your skills and discover new ones in our community</p>
-                         </div>
+									<Separator className="bg-white/5" />
 
-                         <form onSubmit={handleSubmit} className="space-y-6">
-                              {/* Name Field */}
-                              <div>
-                                   <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                                        Full Name *
-                                   </label>
-                                   <input
-                                        type="text"
-                                        id="name"
-                                        name="name"
-                                        value={formData.name || ""}
-                                        onChange={handleInputChange}
-                                        required
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                        placeholder="Enter your full name"
-                                   />
-                              </div>
-                              {/* Profession Field */}
-                              <div>
-                                   <label
-                                        htmlFor="professionTitle"
-                                        className="block text-sm font-medium text-gray-700 mb-2"
-                                   >
-                                        Please Add your profession*
-                                   </label>
-                                   <input
-                                        type="text"
-                                        id="professionTitle"
-                                        name="professionTitle" // ✅ matches handleInputChange
-                                        value={formData.professionDetails.title}
-                                        onChange={handleInputChange}
-                                        required
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                        placeholder="Enter your current profession"
-                                   />
-                              </div>
+									{/* Skills Wanted */}
+									<div className="space-y-5">
+										<div className="flex items-center justify-between">
+											<Label className="text-accent font-bold text-sm uppercase tracking-widest">Mastery To Gain</Label>
+											<span className="text-xs text-slate-500 uppercase tracking-tighter">Add what you want to learn</span>
+										</div>
+										<div className="flex gap-2">
+											<Input
+												value={newSkillNeeded} onChange={(e) => setNewSkillNeeded(e.target.value)}
+												onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addSkillNeeded())}
+												placeholder="Go, AI/ML, Design Systems..."
+												className="bg-slate-950/40 border-white/10 text-white h-12 rounded-xl"
+											/>
+											<Button type="button" onClick={addSkillNeeded} className="bg-accent hover:bg-accent/90 text-accent-foreground h-12 px-6 rounded-xl font-bold">
+												<Plus className="w-5 h-5" />
+											</Button>
+										</div>
+										<div className="flex flex-wrap gap-2 pt-2">
+											{formData.skillsWanted.map((skill, i) => (
+												<Badge key={i} className="bg-accent/10 text-accent border-accent/20 py-2 px-4 rounded-xl text-sm font-semibold flex items-center gap-2">
+													{skill}
+													<X className="w-4 h-4 cursor-pointer hover:text-white" onClick={() => removeSkillNeeded(skill)} />
+												</Badge>
+											))}
+										</div>
+									</div>
+								</CardContent>
+							</Card>
 
-                              {/* Professional Experience in years*/}
-                              <div>
-                                   <label
-                                        htmlFor="experienceYears"
-                                        className="block text-sm font-medium text-gray-700 mb-2"
-                                   >
-                                        Enter your professional experience (In years)*
-                                   </label>
-                                   <input
-                                        type="text"
-                                        id="experienceYears"
-                                        name="experienceYears" // ✅ matches handleInputChange
-                                        value={formData.experienceSummary.years}
-                                        onChange={handleInputChange}
-                                        required
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                        placeholder="Eg: If it's 5 years, enter 5"
-                                   />
-                              </div>
-
-                              {/* Current organisation*/}
-                              <div>
-                                   <label htmlFor="organization" className="block text-sm font-medium text-gray-700 mb-2">
-                                        Enter your current organisation name
-                                   </label>
-                                   <input
-                                        type="text"
-                                        id="organization"
-                                        name="organization" // ✅ matches handleInputChange
-                                        value={formData.currentOrganization.organization}
-                                        onChange={handleInputChange}
-                                        required
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                        placeholder="Your current organisation name"
-                                   />
-                              </div>
-
-                              {/* Bio Field */}
-                              <div>
-                                   <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-2">
-                                        Bio
-                                   </label>
-                                   <textarea
-                                        id="bio"
-                                        name="bio"
-                                        value={formData.bio || ""}
-                                        onChange={handleInputChange}
-                                        rows={4}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none"
-                                        placeholder="Tell us about yourself, your interests, and what you're passionate about..."
-                                   />
-                              </div>
-
-                              {/* Avatar Upload Field */}
-                              <div>
-                                   <label htmlFor="avatarFile" className="block text-sm font-medium text-gray-700 mb-2">
-                                        Upload Avatar
-                                   </label>
-                                   <input
-                                        type="file"
-                                        id="avatarFile"
-                                        name="avatar"
-                                        accept="image/*"
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                   />
-
-                                   {avatarPreview && (
-                                        <Image
-                                             src={avatarPreview}
-                                             alt="Preview"
-                                             className="w-24 h-24 rounded-full mt-3 object-cover border border-gray-300"
-                                        />
-                                   )}
-                              </div>
-
-                              {/* Timezone Field */}
-                              <div>
-                                   <label htmlFor="timeZone" className="block text-sm font-medium text-gray-700 mb-2">
-                                        <Clock className="inline w-4 h-4 mr-1" />
-                                        Time Zone
-                                   </label>
-                                   <select
-                                        id="timeZone"
-                                        name="timeZone"
-                                        value={formData.timeZone}
-                                        onChange={handleInputChange}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                   >
-                                        <option value="">Select your timezone</option>
-                                        {commonTimezones.map((tz) => (
-                                             <option key={tz} value={tz}>
-                                                  {tz}
-                                             </option>
-                                        ))}
-                                   </select>
-                              </div>
-
-                              {/* Skills Offered */}
-                              <div>
-                                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        <Lightbulb className="inline w-4 h-4 mr-1" />
-                                        Skills You Can Offer
-                                   </label>
-
-                                   <div className="flex gap-2 mb-3">
-                                        <input
-                                             type="text"
-                                             value={newSkillOffered}
-                                             onChange={(e) => setNewSkillOffered(e.target.value)}
-                                             onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addSkillOffered())}
-                                             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                             placeholder="e.g., JavaScript, Cooking, Photography"
-                                        />
-                                        <button
-                                             type="button"
-                                             onClick={addSkillOffered}
-                                             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-1"
-                                        >
-                                             <Plus className="w-4 h-4" />
-                                             Add
-                                        </button>
-                                   </div>
-
-                                   <div className="flex flex-wrap gap-2">
-                                        {formData.skillsOffered.map((skill, index) => (
-                                             <span
-                                                  key={index}
-                                                  className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
-                                             >
-                                                  {skill}
-                                                  <button
-                                                       type="button"
-                                                       onClick={() => removeSkillOffered(skill)}
-                                                       className="text-blue-600 hover:text-blue-800"
-                                                  >
-                                                       <X className="w-3 h-3" />
-                                                  </button>
-                                             </span>
-                                        ))}
-                                   </div>
-                              </div>
-
-                              {/* Skills Needed */}
-                              <div>
-                                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        <Book className="inline w-4 h-4 mr-1" />
-                                        Skills You Want to Learn
-                                   </label>
-
-                                   <div className="flex gap-2 mb-3">
-                                        <input
-                                             type="text"
-                                             value={newSkillNeeded}
-                                             onChange={(e) => setNewSkillNeeded(e.target.value)}
-                                             onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addSkillNeeded())}
-                                             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                             placeholder="e.g., Python, Guitar, Public Speaking"
-                                        />
-                                        <button
-                                             type="button"
-                                             onClick={addSkillNeeded}
-                                             className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center gap-1"
-                                        >
-                                             <Plus className="w-4 h-4" />
-                                             Add
-                                        </button>
-                                   </div>
-
-                                   <div className="flex flex-wrap gap-2">
-                                        {formData.skillsWanted.map((skill, index) => (
-                                             <span
-                                                  key={index}
-                                                  className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm"
-                                             >
-                                                  {skill}
-                                                  <button
-                                                       type="button"
-                                                       onClick={() => removeSkillNeeded(skill)}
-                                                       className="text-green-600 hover:text-green-800"
-                                                  >
-                                                       <X className="w-3 h-3" />
-                                                  </button>
-                                             </span>
-                                        ))}
-                                   </div>
-                              </div>
-
-                              {/* Submit Button */}
-                              <button
-                                   type="submit"
-                                   disabled={isSubmitting || !formData.name.trim()}
-                                   className="w-full py-3 px-6 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                              >
-                                   {isSubmitting ? (
-                                        <div className="flex items-center justify-center gap-2">
-                                             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                             {isEdit ? "Updating Profile..." : "Creating Profile..."}
-                                        </div>
-                                   ) : isEdit ? (
-                                        "Edit Profile"
-                                   ) : (
-                                        "Create Profile"
-                                   )}
-                              </button>
-                         </form>
-                    </div>
-               </div>
-          </div>
-     );
+							{/* Actions */}
+							<div className="flex justify-end pt-4">
+								<Button
+									type="submit" disabled={isSubmitting || !formData.name.trim()}
+									className="min-w-[240px] bg-gradient-to-r from-primary to-accent hover:opacity-90 text-white font-black text-lg h-16 rounded-2xl shadow-2xl shadow-primary/20 transition-all hover:scale-[1.03] active:scale-[0.98] disabled:opacity-50"
+								>
+									{isSubmitting ? (
+										<div className="flex items-center gap-4">
+											<div className="w-6 h-6 border-4 border-white/20 border-t-white rounded-full animate-spin" />
+											Processing Identity...
+										</div>
+									) : (
+										<div className="flex items-center gap-3">
+											<Save className="w-6 h-6" />
+											{isEdit ? "Update Ecosystem Profile" : "Initialize Identity"}
+										</div>
+									)}
+								</Button>
+							</div>
+						</form>
+					</main>
+				</div>
+			</div>
+		</div>
+	);
 };
 
 export default ProfileCreatePage;
