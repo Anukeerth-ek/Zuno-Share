@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { getBaseUrl } from "@/utils/getBaseUrl";
 
 const ProfileCreatePage = () => {
 	const router = useRouter();
@@ -137,7 +138,8 @@ const ProfileCreatePage = () => {
 			formData.skillsOffered.forEach((skill) => formDataToSend.append("skillsOffered[]", skill));
 			formData.skillsWanted.forEach((skill) => formDataToSend.append("skillsWanted[]", skill));
 
-			const url = isEdit ? "https://skillswap-platform-ovuw.onrender.com/api/profile/update" : "https://skillswap-platform-ovuw.onrender.com/api/profile";
+			const BASE_URL = getBaseUrl();
+			const url = isEdit ? `${BASE_URL}/api/profile/update` : `${BASE_URL}/api/profile`;
 
 			const response = await fetch(url, {
 				method: isEdit ? "PUT" : "POST",
@@ -160,7 +162,8 @@ const ProfileCreatePage = () => {
 				router.push("/");
 				return;
 			}
-			const res = await fetch("https://skillswap-platform-ovuw.onrender.com/api/profile/me", {
+			const BASE_URL = getBaseUrl();
+			const res = await fetch(`${BASE_URL}/api/profile/me`, {
 				method: "GET",
 				headers: { Authorization: `Bearer ${token}` },
 			});

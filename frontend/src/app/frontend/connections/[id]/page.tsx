@@ -40,7 +40,8 @@ export default function ConnectionDetailPage() {
 		if (!id) return;
 		const fetchData = async () => {
 			try {
-				const res = await fetch(`https://skillswap-platform-ovuw.onrender.com/api/profile/user/${id}`);
+				const BASE_URL = getBaseUrl();
+				const res = await fetch(`${BASE_URL}/api/profile/user/${id}`);
 				const data = await res.json();
 				setMentor(data.user);
 			} catch (err) {

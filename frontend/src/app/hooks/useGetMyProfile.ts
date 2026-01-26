@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getBaseUrl } from "@/utils/getBaseUrl";
 
 export type User = {
      id: string; // ✅ Add this field
@@ -33,7 +34,8 @@ export const useGetMyProfile = () => {
                }
 
                try {
-                    const res = await fetch("http://localhost:4000/api/profile/me", {
+                    const BASE_URL = getBaseUrl();
+                    const res = await fetch(`${BASE_URL}/api/profile/me`, {
                          headers: {
                               Authorization: `Bearer ${token}`,
                          },

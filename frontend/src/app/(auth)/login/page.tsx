@@ -7,7 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
-import {  useRouter } from "next/navigation";
+import { useGetMyProfile } from "@/app/hooks/useGetMyProfile";
+import { getBaseUrl } from "@/utils/getBaseUrl";
+import { useRouter } from "next/navigation";
 
 interface FormData {
      email: string;
@@ -92,9 +94,8 @@ export default function Page() {
 
           try {
                if (isLogin) {
-                    // LOGIN LOGIC
-                    const res = await fetch("https://skillswap-platform-ovuw.onrender.com/api/auth/login", {
-                    // const res = await fetch("http://localhost:4000/api/auth/login", {
+                    const BASE_URL = getBaseUrl();
+                    const res = await fetch(`${BASE_URL}/api/auth/login`, {
                          method: "POST",
                          headers: { "Content-Type": "application/json" },
                          body: JSON.stringify({
@@ -117,8 +118,7 @@ export default function Page() {
                     window.dispatchEvent(new Event("userLoggedIn"));
 
                     // 🔍 Check if user has a profile
-                    const profileRes = await fetch("https://skillswap-platform-ovuw.onrender.com/api/profiles/me", {
-
+                    const profileRes = await fetch(`${BASE_URL}/api/profile/me`, {
                          method: "GET",
                          headers: {
                               Authorization: `Bearer ${data.token}`,
@@ -137,7 +137,8 @@ export default function Page() {
                     }
                } else {
                     // ✅ SIGNUP LOGIC
-                    const res = await fetch("https://skillswap-platform-ovuw.onrender.com/api/auth/signup", {
+                    const BASE_URL = getBaseUrl();
+                    const res = await fetch(`${BASE_URL}/api/auth/signup`, {
                          method: "POST",
                          headers: { "Content-Type": "application/json" },
                          body: JSON.stringify({

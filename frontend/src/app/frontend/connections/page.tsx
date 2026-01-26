@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { useGetUserConnections } from "@/app/hooks/useGetUserConnection";
 import { Separator } from "@/components/ui/separator";
 import { Card } from "@/components/ui/card";
+import { getBaseUrl } from "@/utils/getBaseUrl";
 
 interface UserConnection {
 	id: string;
@@ -51,7 +52,8 @@ export default function ConnectionListPage() {
 		if (!currentUser?.id) return;
 		const fetchIncoming = async () => {
 			try {
-				const res = await fetch(`https://skillswap-platform-ovuw.onrender.com/api/connections/requests/incoming/${currentUser?.id}`);
+				const BASE_URL = getBaseUrl();
+				const res = await fetch(`${BASE_URL}/api/connections/requests/incoming/${currentUser?.id}`);
 				const data = await res.json();
 				if (res.ok) setIncomingRequests(data || []);
 			} catch {
@@ -65,7 +67,8 @@ export default function ConnectionListPage() {
 		if (!currentUser?.id) return;
 		setLoadingRequests(true);
 		try {
-			const res = await fetch(`https://skillswap-platform-ovuw.onrender.com/api/connections/requests/incoming/${currentUser.id}`);
+			const BASE_URL = getBaseUrl();
+			const res = await fetch(`${BASE_URL}/api/connections/requests/incoming/${currentUser.id}`);
 			const data = await res.json();
 			setIncomingRequests(data || []);
 		} catch {
@@ -77,7 +80,8 @@ export default function ConnectionListPage() {
 
 	const handleAccept = async (connectionId: string) => {
 		try {
-			const res = await fetch("https://skillswap-platform-ovuw.onrender.com/api/connections/accept", {
+			const BASE_URL = getBaseUrl();
+			const res = await fetch(`${BASE_URL}/api/connections/accept`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ connectionId }),
@@ -85,7 +89,7 @@ export default function ConnectionListPage() {
 			if (res.ok) {
 				toast.success("Connection accepted");
 				setIncomingRequests((prev) => prev.filter((c) => c.id !== connectionId));
-				const updated = await fetch(`https://skillswap-platform-ovuw.onrender.com/api/connections/${currentUser?.id}`);
+				const updated = await fetch(`${BASE_URL}/api/connections/${currentUser?.id}`);
 				const data = await updated.json();
 				setUsersConnection?.(data);
 			}
@@ -96,7 +100,8 @@ export default function ConnectionListPage() {
 
 	const handleDecline = async (connectionId: string) => {
 		try {
-			const res = await fetch("https://skillswap-platform-ovuw.onrender.com/api/connections/decline", {
+			const BASE_URL = getBaseUrl();
+			const res = await fetch(`${BASE_URL}/api/connections/decline`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ connectionId }),

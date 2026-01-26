@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getBaseUrl } from "@/utils/getBaseUrl";
 
 interface UserConnection {
      id: string;
@@ -39,7 +40,8 @@ export function useGetUserConnections(userId?: string): UseGetUserConnectionsRet
                setLoading(true);
                setError(null);
                try {
-                    const res = await fetch(`http://localhost:4000/api/connections/${userId}`, { signal });
+                    const BASE_URL = getBaseUrl();
+                    const res = await fetch(`${BASE_URL}/api/connections/${userId}`, { signal });
                     const data = await res.json();
 
                     if (res.ok) {

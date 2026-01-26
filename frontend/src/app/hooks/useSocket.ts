@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { io, Socket } from "socket.io-client";
+import { getBaseUrl } from "@/utils/getBaseUrl";
 
 let socket: Socket;
 
@@ -10,7 +11,8 @@ export default function useSocket(userId: string | undefined) {
   useEffect(() => {
     if (!userId) return;
 
-    socket = io("http://localhost:4000", {
+    const BASE_URL = getBaseUrl();
+    socket = io(BASE_URL, {
       query: { userId },
     });
 
