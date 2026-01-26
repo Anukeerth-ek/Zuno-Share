@@ -106,10 +106,10 @@ export default function Page() {
                     localStorage.setItem("token", data.token);
                     window.dispatchEvent(new Event("userLoggedIn"));
 
-                    const profileRes = await fetch(`${BASE_URL}/api/profile/me`, {
-                         method: "GET",
-                         headers: { Authorization: `Bearer ${data.token}` },
-                    });
+                    // const profileRes = await fetch(`${BASE_URL}/api/profile/me`, {
+                    //      method: "GET",
+                    //      headers: { Authorization: `Bearer ${data.token}` },
+                    // });
 
                     router.push("/");
                } else {
