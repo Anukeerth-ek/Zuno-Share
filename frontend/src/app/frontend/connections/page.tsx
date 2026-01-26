@@ -54,8 +54,8 @@ export default function ConnectionListPage() {
 				const res = await fetch(`https://skillswap-platform-ovuw.onrender.com/api/connections/requests/incoming/${currentUser?.id}`);
 				const data = await res.json();
 				if (res.ok) setIncomingRequests(data || []);
-			} catch (_err) {
-				console.error(_err);
+			} catch {
+				// No action needed
 			}
 		};
 		fetchIncoming();
@@ -68,7 +68,7 @@ export default function ConnectionListPage() {
 			const res = await fetch(`https://skillswap-platform-ovuw.onrender.com/api/connections/requests/incoming/${currentUser.id}`);
 			const data = await res.json();
 			setIncomingRequests(data || []);
-		} catch (_err) {
+		} catch {
 			toast.error("Failed to load connection requests");
 		} finally {
 			setLoadingRequests(false);

@@ -13,12 +13,10 @@ import {
 	CheckCircle2, 
 	Clock, 
 	MapPin, 
-	Target, 
 	ChevronLeft, 
 	Zap,
 	ShieldCheck,
 	Sparkles,
-	User as UserIcon,
 	Save
 } from "lucide-react";
 import { User } from "@/types";
