@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { getBaseUrl } from "@/utils/getBaseUrl";
 
 interface Session {
      id: string;
@@ -31,7 +32,8 @@ const SessionsPage = () => {
           if (!token) return;
 
           try {
-               const res = await fetch("https://skillswap-platform-ovuw.onrender.com/api/sessions/my-sessions", {
+               const BASE_URL = getBaseUrl();
+               const res = await fetch(`${BASE_URL}/api/sessions/my-sessions`, {
                     headers: {
                          Authorization: `Bearer ${token}`,
                     },
@@ -43,7 +45,7 @@ const SessionsPage = () => {
                // setSessions(fetchedSessions);
 
                // ✅ Fetch user to separate sessions
-               const userRes = await fetch("https://skillswap-platform-ovuw.onrender.com/api/profile/me", {
+               const userRes = await fetch(`${BASE_URL}/api/profile/me`, {
                     headers: { Authorization: `Bearer ${token}` },
                });
                const userData = await userRes.json();
