@@ -74,7 +74,8 @@ const SessionsPage = () => {
           setApprovingSession(id);
 
           try {
-               const res = await fetch("https://skillswap-platform-ovuw.onrender.com/api/google-token/status", {
+               const BASE_URL = getBaseUrl();
+               const res = await fetch(`${BASE_URL}/api/google-token/status`, {
                     headers: {
                          Authorization: `Bearer ${token}`,
                     },
@@ -90,7 +91,7 @@ const SessionsPage = () => {
 
                if (!hasTokens) {
                     console.log("No Google tokens found, redirecting to OAuth...");
-                    window.location.href = `https://skillswap-platform-ovuw.onrender.com/api/google/auth?token=${token}`;
+                    window.location.href = `${BASE_URL}/api/google/auth?token=${token}`;
                     return;
                }
 
@@ -113,7 +114,8 @@ const SessionsPage = () => {
           if (!token) return;
 
           try {
-               const res = await fetch(`https://skillswap-platform-ovuw.onrender.com/api/sessions/approve/${id}`, {
+               const BASE_URL = getBaseUrl();
+               const res = await fetch(`${BASE_URL}/api/sessions/approve/${id}`, {
                     method: "PATCH",
                     headers: {
                          "Content-Type": "application/json",
@@ -128,7 +130,7 @@ const SessionsPage = () => {
 
                     if (data.message?.includes("Google Calendar not connected") || data.message?.includes("Google Meet")) {
                          alert("Google Calendar needs to be reconnected. You'll be redirected to Google OAuth.");
-                         window.location.href = `https://skillswap-platform-ovuw.onrender.com/api/google/auth?token=${token}`;
+                         window.location.href = `${BASE_URL}/api/google/auth?token=${token}`;
                          return;
                     } else {
                          alert(data.message || "Failed to update session status");
@@ -152,7 +154,8 @@ const SessionsPage = () => {
           if (!confirm("Are you sure you want to delete this session?")) return;
 
           try {
-               const res = await fetch(`https://skillswap-platform-ovuw.onrender.com/api/sessions/delete/${id}`, {
+               const BASE_URL = getBaseUrl();
+               const res = await fetch(`${BASE_URL}/api/sessions/delete/${id}`, {
                     method: "DELETE",
                     headers: {
                          Authorization: `Bearer ${token}`,
