@@ -111,7 +111,7 @@ export const Navbar = () => {
 								</Button>
 
 								{/* Dropdown Profile Section */}
-								<DropdownMenu>
+								<DropdownMenu modal={false}>
 									<DropdownMenuTrigger asChild>
 										<div className="flex items-center gap-3 pl-2 pr-1 py-1 rounded-full border border-border/50 bg-white/5 hover:bg-white/10 hover:border-primary/50 transition-all cursor-pointer group">
 											<span className="text-sm font-medium text-gray-200 pl-2 hidden md:inline">

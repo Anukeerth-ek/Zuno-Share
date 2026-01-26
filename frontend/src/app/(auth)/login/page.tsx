@@ -114,6 +114,7 @@ export default function Page() {
                     }
 
                     localStorage.setItem("token", data.token);
+                    window.dispatchEvent(new Event("userLoggedIn"));
 
                     // 🔍 Check if user has a profile
                     const profileRes = await fetch("https://skillswap-platform-ovuw.onrender.com/api/profiles/me", {
