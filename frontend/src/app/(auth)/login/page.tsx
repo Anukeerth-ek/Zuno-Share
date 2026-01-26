@@ -171,7 +171,7 @@ export default function Page() {
                               <Sparkles className="h-8 w-8 text-primary shadow-sm" />
                          </div>
                          <h1 className="text-4xl font-extrabold tracking-tight text-white mb-2 bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-white/50">
-                              SkillSwap
+                              Zuno
                          </h1>
                          <p className="text-muted-foreground text-sm font-medium">
                               {isLogin ? "Welcome back! Please enter your details." : "Join our community of mentors and learners."}
