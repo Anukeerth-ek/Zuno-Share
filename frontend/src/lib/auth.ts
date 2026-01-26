@@ -1,5 +1,6 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import type { NextAuthOptions } from "next-auth";
+import { getBaseUrl } from "@/utils/getBaseUrl";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -10,7 +11,8 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        const res = await fetch("https://skillswap-platform-ovuw.onrender.com/api/auth/login", {
+        const BASE_URL = getBaseUrl();
+        const res = await fetch(`${BASE_URL}/api/auth/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
