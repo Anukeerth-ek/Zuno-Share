@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
-import { useGetMyProfile } from "@/app/hooks/useGetMyProfile";
 import { getBaseUrl } from "@/utils/getBaseUrl";
 import { useRouter } from "next/navigation";
 
