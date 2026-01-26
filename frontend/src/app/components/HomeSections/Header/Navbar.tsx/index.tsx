@@ -53,6 +53,20 @@ export const Navbar = () => {
 								Home
 							</Button>
 						</Link>
+						<Link href="/frontend/find-connections">
+							<Button
+								variant="ghost"
+								size="sm"
+								className={
+									isActive("/frontend/find-connections")
+										? "text-primary hover:text-primary hover:bg-primary/10 cursor-pointer font-medium"
+										: "text-gray-400 hover:text-white hover:bg-white/5 cursor-pointer"
+								}
+							>
+								<Users className="w-4 h-4 mr-2" />
+								Find Connections
+							</Button>
+						</Link>
 						<Link href="/frontend/connections">
 							<Button
 								variant="ghost"
@@ -81,7 +95,7 @@ export const Navbar = () => {
 								My Sessions
 							</Button>
 						</Link>
-						<Link href="/frontend/chat">
+						{/* <Link href="/frontend/chat">
 							<Button
 								variant="ghost"
 								size="sm"
@@ -94,7 +108,7 @@ export const Navbar = () => {
 								<MessageCircle className="w-4 h-4 mr-2" />
 								Messages
 							</Button>
-						</Link>
+						</Link> */}
 					</div>
 
 					<div className="flex items-center space-x-4">
