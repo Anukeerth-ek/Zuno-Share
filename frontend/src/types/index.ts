@@ -130,3 +130,15 @@ export interface User {
   followers: Follow[];
   following: Follow[];
 }
+
+    export interface profileData {
+          name: string;
+          bio: string;
+          avatarUrl: string;
+          timeZone: string;
+          professionDetails: { title: string };
+          currentOrganization: { organization: string };
+          experienceSummary: { years: string };
+          skillsOffered: string[];
+          skillsWanted: string[];
+     };
