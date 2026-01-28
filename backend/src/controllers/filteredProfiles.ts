@@ -1,38 +1,87 @@
 import { Request, Response } from "express";
 import prisma from "../prismaClient";
 
-export const getFilteredProfile = async (req: Request, res: Response) => {
-	const { search, company, professional, experience, sort } = req.query;
+export const getFilteredProfile = async (req: any, res: Response) => {
+	const { search, company, professional, experience, sort, page = "1", limit = "10" } = req.query;
+	const userId = req.user?.id;
 
-     const where: any = {};
-     
+	const pageNum = parseInt(page as string) || 1;
+	const limitNum = parseInt(limit as string) || 10;
+	const skip = (pageNum - 1) * limitNum;
+
+	const where: any = {};
+
+	// Exclude existing connections and self if user is logged in
+	if (userId) {
+		const connections = await prisma.connection.findMany({
+			where: {
+				OR: [{ senderId: userId }, { receiverId: userId }],
+				status: { in: ["ACCEPTED", "PENDING"] },
+			},
+			select: { senderId: true, receiverId: true },
+		});
+
+		const excludedUserIds = new Set<string>();
+		excludedUserIds.add(userId);
+		connections.forEach((c) => {
+			excludedUserIds.add(c.senderId);
+			excludedUserIds.add(c.receiverId);
+		});
+
+		where.id = { notIn: Array.from(excludedUserIds) };
+	}
+
 	if (search) {
-		where.OR = [
-			{ name: { contains: search as string, mode: "insensitive" } },
-			{
-				skillsOffered: {
-					some: { name: { contains: search as string, mode: "insensitive" } },
+		const searchCondition = {
+			OR: [
+				{ name: { contains: search as string, mode: "insensitive" } },
+				{
+					skillsOffered: {
+						some: { name: { contains: search as string, mode: "insensitive" } },
+					},
 				},
-			},
-			{
-				skillsWanted: {
-					some: { name: { contains: search as string, mode: "insensitive" } },
+				{
+					skillsWanted: {
+						some: { name: { contains: search as string, mode: "insensitive" } },
+					},
 				},
-			},
-		];
+			],
+		};
+
+		if (where.AND) {
+			where.AND.push(searchCondition);
+		} else {
+			where.AND = [searchCondition];
+		}
 	}
 
 	if (company) {
-		where.currentOrganization = {
-			organization: { contains: company as string, mode: "insensitive" },
+		const companyCondition = {
+			currentOrganization: {
+				organization: { contains: company as string, mode: "insensitive" },
+			},
 		};
+
+		if (where.AND) {
+			where.AND.push(companyCondition);
+		} else {
+			where.AND = [companyCondition];
+		}
 	}
 
 	if (professional) {
 		const profs = (professional as string).split(",");
-		where.professionDetails = {
-			title: { in: profs },
+		const profCondition = {
+			professionDetails: {
+				title: { in: profs },
+			},
 		};
+
+		if (where.AND) {
+			where.AND.push(profCondition);
+		} else {
+			where.AND = [profCondition];
+		}
 	}
 
 	if (experience) {
@@ -76,28 +125,33 @@ export const getFilteredProfile = async (req: Request, res: Response) => {
 	}
 
 	try {
-		const users = await prisma.user.findMany({
-			where,
-			include: {
-				currentOrganization: {
-					select: { organization: true },
+		const [users, total] = await Promise.all([
+			prisma.user.findMany({
+				where,
+				include: {
+					currentOrganization: {
+						select: { organization: true },
+					},
+					experienceSummary: {
+						select: { years: true, description: true },
+					},
+					professionDetails: {
+						select: { title: true },
+					},
+					skillsOffered: {
+						select: { id: true, name: true, category: true },
+					},
+					skillsWanted: {
+						select: { id: true, name: true, category: true },
+					},
 				},
-				experienceSummary: {
-					select: { years: true, description: true },
-				},
-				professionDetails: {
-					select: { title: true },
-				},
-				skillsOffered: {
-					select: { id: true, name: true, category: true },
-				},
-				skillsWanted: {
-					select: { id: true, name: true, category: true },
-				},
-			},
-			orderBy,
-          });
-          
+				orderBy,
+				skip,
+				take: limitNum,
+			}),
+			prisma.user.count({ where }),
+		]);
+
 		const result = users.map((u) => ({
 			id: u.id,
 			name: u.name,
@@ -111,7 +165,15 @@ export const getFilteredProfile = async (req: Request, res: Response) => {
 			skillsWanted: u.skillsWanted || [],
 		}));
 
-		res.json({ users: result });
+		res.json({
+			users: result,
+			pagination: {
+				total,
+				page: pageNum,
+				limit: limitNum,
+				totalPages: Math.ceil(total / limitNum),
+			},
+		});
 	} catch (err) {
 		console.error("❌ Prisma Error:", err);
 		res.status(500).json({ error: "Database error" });
