@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { ShimmerText } from "@/components/ui/shimmer-text";
 
 const Hero = () => {
   const router = useRouter()
@@ -26,8 +27,8 @@ const Hero = () => {
         </div>
 
         {/* Main Heading */}
-        <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent leading-tight">
-          Connect, Learn, and Grow Together
+        <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+          <ShimmerText text="Connect, Learn, and Grow Together" />
         </h1>
         
         <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">

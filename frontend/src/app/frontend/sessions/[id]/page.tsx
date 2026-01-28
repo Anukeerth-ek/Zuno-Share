@@ -4,7 +4,6 @@ import { MessageCircleMore, Video } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { } from "next/types"
 
 interface Session {
      id: string;
