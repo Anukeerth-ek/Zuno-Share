@@ -14,16 +14,14 @@ interface Session {
      status: "PENDING" | "CONFIRMED" | "REJECTED";
      scheduledAt: string;
      meetLink?: string;
-     mentorId?: string; // ✅ Added
-     learnerId?: string; // ✅ Added
+     mentorId?: string;
+     learnerId?: string;
 }
 
 const SessionsPage = () => {
-     // const [sessions, setSessions] = useState<Session[]>([]);
      const [loading, setLoading] = useState(true);
      const [approvingSession, setApprovingSession] = useState<string | null>(null);
 
-     // ✅ Added two new state variables for separating sessions
      const [requestedSessions, setRequestedSessions] = useState<Session[]>([]);
      const [receivedSessions, setReceivedSessions] = useState<Session[]>([]);
 
@@ -188,7 +186,6 @@ const SessionsPage = () => {
       <p>Loading...</p>
     ) : (
       <div className="flex flex-col md:flex-row gap-6">
-        {/* ✅ Requested Sessions (Learner view, no Approve/Reject) */}
         <section className="flex-1 border rounded-lg p-4 bg-gray-50">
           <h2 className="text-xl font-semibold mb-3 text-blue-600">Requested Sessions</h2>
           {requestedSessions.length === 0 ? (
@@ -211,7 +208,6 @@ const SessionsPage = () => {
           )}
         </section>
 
-        {/* ✅ Received Sessions (Mentor view, show Approve/Reject) */}
         <section className="flex-1 border rounded-lg p-4 bg-gray-50">
           <h2 className="text-xl font-semibold mb-3 text-green-600">Received Session Requests</h2>
           {receivedSessions.length === 0 ? (
@@ -289,7 +285,6 @@ const SessionCard: React.FC<SessionCardProps> = ({
                </span>
           </p>
 
-          {/* ✅ Show Approve/Reject only if showActions=true */}
           {showActions && session.status === "PENDING" && (
                <div className="flex justify-between gap-2 mt-2">
                     <div className="flex gap-2 mt-2">
