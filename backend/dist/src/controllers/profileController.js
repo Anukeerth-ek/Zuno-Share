@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getAllProfiles = exports.updateUserProfile = void 0;
-const prismaClient_1 = __importDefault(require("../prismaClient"));
+const prisma_1 = __importDefault(require("../lib/prisma"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const updateUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { bio, avatarUrl, timeZone, skillsOffered = [], skillsWanted = [], professionTitle, organization, experienceYears, experienceDescription, currentStatus, linkedin, github, twitter, website, } = req.body;
@@ -96,7 +96,7 @@ const updateUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, functi
             };
         }
         // 3. Update the user
-        const updatedUser = yield prismaClient_1.default.user.update({
+        const updatedUser = yield prisma_1.default.user.update({
             where: { id: req.userId },
             data,
             include: {
@@ -119,7 +119,7 @@ const updateUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, functi
 exports.updateUserProfile = updateUserProfile;
 function getOrCreateSkill(name) {
     return __awaiter(this, void 0, void 0, function* () {
-        return yield prismaClient_1.default.skill.upsert({
+        return yield prisma_1.default.skill.upsert({
             where: { name },
             update: {},
             create: { name },
@@ -140,7 +140,7 @@ const getAllProfiles = (req, res) => __awaiter(void 0, void 0, void 0, function*
                 console.log("Invalid token");
             }
         }
-        const users = yield prismaClient_1.default.user.findMany({
+        const users = yield prisma_1.default.user.findMany({
             where: currentUserId ? { id: { not: currentUserId } } : {},
             include: {
                 skillsOffered: true,

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import prisma from "../prismaClient";
+import prisma from "../lib/prisma";
 import jwt from "jsonwebtoken";
 
 export const updateUserProfile = async (req: Request & { userId?: string }, res: Response) => {

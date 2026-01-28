@@ -3,7 +3,7 @@ import dotenv = require("dotenv");
 import cors = require("cors"); 
 import http from "http";
 import { Server } from "socket.io";
-import { initSocket } from "./socket";
+import { initSocket, getIO, getOnlineUsers } from "./socket";
 import skillRoutes from "./routes/skillRoutes";
 import userRoutes from "./routes/userRoutes";
 import bookSessionRoutes from "./routes/bookSessionRoutes";
@@ -52,31 +52,14 @@ app.use("/api/google-token", googleTokenRoutes);
 
 const server = http.createServer(app);
 initSocket(server);
-const io = new Server(server, {
-  cors: {
-    origin: "http://localhost:3000", // adjust to your frontend URL
-    credentials: true,
-  },
-});
 
-const onlineUsers = new Map<string, string>();
+// The socket logic is already handled inside initSocket in ./socket.ts
+// But if you want to keep additional logic here, use getIO()
+const io = getIO();
+const onlineUsers = getOnlineUsers();
 
-io.on("connection", (socket) => {
-  const userId = socket.handshake.query.userId as string;
-
-  if (userId) {
-    onlineUsers.set(userId, socket.id);
-
-  }
-
-  socket.on("disconnect", () => {
-    if (userId) onlineUsers.delete(userId);
-    console.log('userid')
-  });
-});
-
-// ✅ Export Socket.IO and user map so you can use them in controllers
-export { io, onlineUsers };
+// ✅ Export user map so you can use it elsewhere if needed
+export { onlineUsers };
 const PORT = process.env.PORT || 4500;
 
 server.listen(PORT, () => {

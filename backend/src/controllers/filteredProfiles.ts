@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import prisma from "../prismaClient";
+import prisma from "../lib/prisma";
 
 export const getFilteredProfile = async (req: any, res: Response) => {
 	const { search, company, professional, experience, sort, page = "1", limit = "10" } = req.query;
-	const userId = req.user?.id;
+	const userId = req.userId;
 
 	const pageNum = parseInt(page as string) || 1;
 	const limitNum = parseInt(limit as string) || 10;

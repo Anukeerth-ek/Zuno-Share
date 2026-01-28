@@ -14,8 +14,9 @@ export const optionalAuth = (req: AuthRequest, res: Response, next: NextFunction
   if (!token) return next();
 
 try {
-  const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
   req.user = decoded;
+  (req as any).userId = decoded.userId;
 } catch (err) {
   console.warn("⚠️ Invalid token, ignoring auth");
   // Don’t send 401 — just skip user

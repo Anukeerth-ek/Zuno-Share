@@ -14,6 +14,7 @@ const optionalAuth = (req, res, next) => {
     try {
         const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
         req.user = decoded;
+        req.userId = decoded.userId;
     }
     catch (err) {
         console.warn("⚠️ Invalid token, ignoring auth");

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import prisma from "../prismaClient";
+import prisma from "../lib/prisma";
 import { comparePassword, hashPassword } from "../utils/hash.utils";
 
 const jwt = require("jsonwebtoken");

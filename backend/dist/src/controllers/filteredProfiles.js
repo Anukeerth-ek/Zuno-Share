@@ -13,18 +13,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getFilteredProfile = void 0;
-const prismaClient_1 = __importDefault(require("../prismaClient"));
+const prisma_1 = __importDefault(require("../lib/prisma"));
 const getFilteredProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
     const { search, company, professional, experience, sort, page = "1", limit = "10" } = req.query;
-    const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+    const userId = req.userId;
     const pageNum = parseInt(page) || 1;
     const limitNum = parseInt(limit) || 10;
     const skip = (pageNum - 1) * limitNum;
     const where = {};
     // Exclude existing connections and self if user is logged in
     if (userId) {
-        const connections = yield prismaClient_1.default.connection.findMany({
+        const connections = yield prisma_1.default.connection.findMany({
             where: {
                 OR: [{ senderId: userId }, { receiverId: userId }],
                 status: { in: ["ACCEPTED", "PENDING"] },
@@ -131,7 +130,7 @@ const getFilteredProfile = (req, res) => __awaiter(void 0, void 0, void 0, funct
     }
     try {
         const [users, total] = yield Promise.all([
-            prismaClient_1.default.user.findMany({
+            prisma_1.default.user.findMany({
                 where,
                 include: {
                     currentOrganization: {
@@ -154,7 +153,7 @@ const getFilteredProfile = (req, res) => __awaiter(void 0, void 0, void 0, funct
                 skip,
                 take: limitNum,
             }),
-            prismaClient_1.default.user.count({ where }),
+            prisma_1.default.user.count({ where }),
         ]);
         const result = users.map((u) => ({
             id: u.id,

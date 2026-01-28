@@ -15,7 +15,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.followUser = void 0;
 const prisma_1 = __importDefault(require("../lib/prisma"));
-const server_1 = require("../server");
+const socket_1 = require("../socket");
+const io = (0, socket_1.getIO)();
+const onlineUsers = (0, socket_1.getOnlineUsers)();
 const followUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { followerId, followingId } = req.body;
     if (followerId === followingId) {
@@ -36,9 +38,9 @@ const followUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 followingId,
             },
         });
-        const followingSocketId = server_1.onlineUsers.get(followingId);
+        const followingSocketId = onlineUsers.get(followingId);
         if (followingSocketId) {
-            server_1.io.to(followingSocketId).emit("follow:received", follow);
+            io.to(followingSocketId).emit("follow:received", follow);
         }
         res.status(201).json(follow);
     }

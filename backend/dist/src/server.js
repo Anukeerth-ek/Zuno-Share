@@ -3,12 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.onlineUsers = exports.io = void 0;
+exports.onlineUsers = void 0;
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const http_1 = __importDefault(require("http"));
-const socket_io_1 = require("socket.io");
 const socket_1 = require("./socket");
 const skillRoutes_1 = __importDefault(require("./routes/skillRoutes"));
 const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
@@ -47,26 +46,11 @@ app.use("/api/google", googleAuthRoutes_1.default);
 app.use("/api/google-token", googleTokenRoutes_1.default);
 const server = http_1.default.createServer(app);
 (0, socket_1.initSocket)(server);
-const io = new socket_io_1.Server(server, {
-    cors: {
-        origin: "http://localhost:3000", // adjust to your frontend URL
-        credentials: true,
-    },
-});
-exports.io = io;
-const onlineUsers = new Map();
+// The socket logic is already handled inside initSocket in ./socket.ts
+// But if you want to keep additional logic here, use getIO()
+const io = (0, socket_1.getIO)();
+const onlineUsers = (0, socket_1.getOnlineUsers)();
 exports.onlineUsers = onlineUsers;
-io.on("connection", (socket) => {
-    const userId = socket.handshake.query.userId;
-    if (userId) {
-        onlineUsers.set(userId, socket.id);
-    }
-    socket.on("disconnect", () => {
-        if (userId)
-            onlineUsers.delete(userId);
-        console.log('userid');
-    });
-});
 const PORT = process.env.PORT || 4500;
 server.listen(PORT, () => {
     console.log(`🚀 Server listening on port ${PORT}`);
