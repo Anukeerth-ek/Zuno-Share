@@ -126,7 +126,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ filters, setFilters }) => {
      );
 
      return (
-          <div className="w-72 overflow-auto bg-gradient-to-b from-gray-900 to-gray-950 text-white border-r border-gray-700 flex flex-col">
+          <div className="w-72 sticky top-18 h-[calc(100vh-72px)] overflow-y-auto bg-gradient-to-b from-gray-900 to-gray-950 text-white border-r border-gray-700 flex flex-col custom-scrollbar">
                {/* Header */}
                <div className="p-6 border-b border-gray-700">
                     <div className="flex items-center justify-between mb-2">

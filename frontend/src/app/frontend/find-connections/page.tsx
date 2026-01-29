@@ -76,11 +76,13 @@ const FindConnections = () => {
                     setUsers(data.users);
                }
 
-               setPagination({
-                    page: data.pagination.page,
-                    totalPages: data.pagination.totalPages,
-                    total: data.pagination.total,
-               });
+               if (data.pagination) {
+                    setPagination({
+                         page: data.pagination.page,
+                         totalPages: data.pagination.totalPages,
+                         total: data.pagination.total,
+                    });
+               }
           } catch (err) {
                console.error("Error fetching users:", err);
           } finally {
@@ -132,7 +134,7 @@ const FindConnections = () => {
      };
 
      return (
-          <div className="flex mt-18">
+          <div className="flex items-start mt-18 min-h-[calc(100vh-72px)]">
                <LeftSidebar filters={filters} setFilters={setFilters} />
                <div className="flex-1 flex flex-col">
                     <div className="p-6">
