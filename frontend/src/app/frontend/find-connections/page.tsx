@@ -101,7 +101,7 @@ const FindConnections = () => {
           }
      };
 
-     if (myDataLoading) return <p>Loading...</p>;
+     if (myDataLoading) return null;
 
      const smartSearch = async (prompt: string) => {
           try {

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { ConnectionCard } from "../connectionCard/index";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ConnectionDetailSideBar } from "../connectionDetailPage";
+import { ConnectionCardSkeleton } from "../connectionCard/skeleton";
 import { User } from "@/types";
 
 type SearchResultsProps = {
@@ -30,18 +31,21 @@ export const SearchResults = ({ users, loading }: SearchResultsProps) => {
           }
      }, [users, selectedUser]);
 
-     if (loading) return <p>Loading...</p>;
      return (
           <>
                <div className="flex-1 p-6">
                     <div className="flex items-center justify-between mb-6">
                          <h2 className="text-xl font-semibold text-white">Search Results</h2>
-                         <span className="text-gray-400">{users?.length} results found</span>
+                         {!loading && <span className="text-gray-400">{users?.length} results found</span>}
                     </div>
 
-                    {users?.length > 0 ? (
-                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                              {users?.map((user) => (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                         {loading ? (
+                              Array.from({ length: 6 }).map((_, i) => (
+                                   <ConnectionCardSkeleton key={i} />
+                              ))
+                         ) : users?.length > 0 ? (
+                              users?.map((user) => (
                                    <ConnectionCard
                                         key={user?.id}
                                         name={user?.name}
@@ -54,13 +58,15 @@ export const SearchResults = ({ users, loading }: SearchResultsProps) => {
                                         skills={user?.skillsOffered?.map((s) => s.name) || []}
                                         handleShowConnectionDetail={() => handleCardClick(user)}
                                    />
-                              ))}
-                         </div>
-                    ) : (
-                         <p className="text-white text-center font-semibold">
-                              No User Found, Please adjust the applied Filter.
-                         </p>
-                    )}
+                              ))
+                         ) : (
+                              <div className="col-span-full">
+                                   <p className="text-white text-center font-semibold">
+                                        No User Found, Please adjust the applied Filter.
+                                   </p>
+                              </div>
+                         )}
+                    </div>
                </div>
 
                <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
