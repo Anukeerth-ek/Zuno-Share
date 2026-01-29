@@ -38,9 +38,14 @@ export const SearchBar = ({ handleUserSearch, smartSearch  }: SearchBarProps) =>
                          Find Mate
                          {/* <ChevronDown className="w-36 h-4 ml-2" /> */}
                     </Button>
-                    <Button onClick={() => setOpen(true)} className=" w-52 cursor-pointer bg-[#21cab9] hover:bg-[#21cab9] text-white px-16">
-                         Use Smart Search
-                         <Sparkles />
+                    <Button 
+                         onClick={() => setOpen(true)} 
+                         className="w-64 relative group overflow-hidden cursor-pointer bg-gradient-to-r from-[#21cab9] to-[#1da192] hover:from-[#1da192] hover:to-[#21cab9] text-white font-bold px-8 shadow-[0_0_20px_-5px_rgba(33,202,185,0.4)] hover:shadow-[0_0_25px_-5px_rgba(33,202,185,0.6)] transition-all duration-300 rounded-xl"
+                    >
+                         <div className="absolute inset-0 bg-white/20 group-hover:translate-x-full -translate-x-full skew-x-12 transition-transform duration-700" />
+                         <span className="relative z-10 flex items-center gap-2 tracking-tight">
+                              SMART SEARCH <Sparkles className="w-4 h-4" />
+                         </span>
                     </Button>
                </div>
 
@@ -51,7 +56,7 @@ export const SearchBar = ({ handleUserSearch, smartSearch  }: SearchBarProps) =>
                                    Welcome to Swapper Smart Search
                               </DialogTitle>
                               <DialogDescription className="text-center mt-2 text-base">
-                                   Please write the prompt here to do the search 👇
+                                   Please write the prompt here to do the search
                               </DialogDescription>
                          </DialogHeader>
 
