@@ -91,11 +91,16 @@ export default {
             "background-position": "200% 0",
           },
         },
+        shine: {
+          "0%": { left: "-100%" },
+          "100%": { left: "100%" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         shimmer: "shimmer 3s infinite",
+        shine: "shine 0.8s ease-in-out",
       },
     },
   },
