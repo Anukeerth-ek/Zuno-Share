@@ -53,22 +53,17 @@ export const requestSession = async (req: AuthenticatedRequest, res: Response) =
      }
 };
 
-export const getMySessions = async (req: Request, res: Response) => {
+export const getMySessions = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const userId = req?.user?.id;
+    const userId = req.userId;
 
-    const requestedSessions = await prisma.session.findMany({
-      where: { learnerId: userId },
-      include: {
-        mentor: { select: { name: true } },
-        learner: { select: { name: true } },
-        skill: { select: { name: true } },
+    const sessions = await prisma.session.findMany({
+      where: {
+        OR: [
+          { learnerId: userId },
+          { mentorId: userId }
+        ]
       },
-      orderBy: { createdAt: "desc" },
-    });
-
-    const receivedSessions = await prisma.session.findMany({
-      where: { mentorId: userId },
       include: {
         mentor: { select: { name: true } },
         learner: { select: { name: true } },
@@ -78,8 +73,7 @@ export const getMySessions = async (req: Request, res: Response) => {
     });
 
     res.json({
-      requestedSessions,
-      receivedSessions,
+      sessions
     });
   } catch (error) {
     console.error("Error fetching sessions:", error);

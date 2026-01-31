@@ -180,7 +180,6 @@ const SessionsPage = () => {
           localStorage.setItem("selectedSession", JSON.stringify(session));
           router.push(`/frontend/sessions/${session.id}`);
      };
-
      	return (
 		<div className="min-h-screen bg-[#030712] relative isolate overflow-hidden pt-24 pb-12 px-6 lg:px-12 mt-10">
 			<div className="absolute inset-0 -z-10 h-full w-full bg-[#030712]">
