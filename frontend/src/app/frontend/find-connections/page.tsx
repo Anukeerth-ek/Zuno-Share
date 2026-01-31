@@ -153,6 +153,12 @@ const FindConnections = () => {
                          <SearchResults
                               users={users}
                               loading={loading}
+                              isFilterActive={
+                                   !!filters.search || 
+                                   filters.professional.length > 0 || 
+                                   filters.experience.length > 0 || 
+                                   !!filters.company
+                              }
                          />
 
                          {pagination.page < pagination.totalPages && (

@@ -10,10 +10,11 @@ import { User } from "@/types";
 type SearchResultsProps = {
      users: User[];
      loading: boolean;
+     isFilterActive: boolean;
      // onUserClick: (user: User) => void;
 };
 
-export const SearchResults = ({ users, loading }: SearchResultsProps) => {
+export const SearchResults = ({ users, loading, isFilterActive }: SearchResultsProps) => {
      const [selectedUser, setSelectedUser] = useState<User | null>(null);
      const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -34,10 +35,12 @@ export const SearchResults = ({ users, loading }: SearchResultsProps) => {
      return (
           <>
                <div className="flex-1 p-6">
-                    <div className="flex items-center justify-between mb-6">
-                         <h2 className="text-xl font-semibold text-white">Search Results</h2>
-                         {!loading && <span className="text-gray-400">{users?.length} results found</span>}
-                    </div>
+                    {isFilterActive && (
+                         <div className="flex items-center justify-between mb-6">
+                              <h2 className="text-xl font-semibold text-white">Search Results</h2>
+                              {!loading && <span className="text-gray-400">{users?.length} results found</span>}
+                         </div>
+                    )}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                          {loading ? (
