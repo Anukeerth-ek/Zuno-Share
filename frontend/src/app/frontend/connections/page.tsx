@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { MoreHorizontal, Users, Mail, MapPin, Briefcase, Plus, CheckCircle2, XCircle, Bell, User as UserIcon } from "lucide-react";
+import { MoreHorizontal, Users, Mail, MapPin, Briefcase, Plus, CheckCircle2, XCircle, Bell, User as UserIcon, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useGetMyProfile } from "@/app/hooks/useGetMyProfile";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -47,6 +48,7 @@ export default function ConnectionListPage() {
 	const [showPopover, setShowPopover] = useState(false);
 	const [incomingRequests, setIncomingRequests] = useState<IncomingRequest[]>([]);
 	const [loadingRequests, setLoadingRequests] = useState(false);
+	const [isChatDialogOpen, setIsChatDialogOpen] = useState(false);
 
 	useEffect(() => {
 		if (!currentUser?.id) return;
@@ -126,7 +128,7 @@ export default function ConnectionListPage() {
 			<p>Failed to fetch connections. Please try again later.</p>
 		</div>
 	);
-
+console.log("anu", usersConnection)
 	return (
 		<div className="min-h-screen bg-[#030712] relative isolate overflow-hidden pt-24 pb-12 px-6 lg:px-12 mt-10">
 			<div className="absolute inset-0 -z-10 h-full w-full bg-[#030712]">
@@ -216,7 +218,7 @@ export default function ConnectionListPage() {
 									<th className="px-8 py-5 text-left text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Partner</th>
 									<th className="px-8 py-5 text-left text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Specialization</th>
 									<th className="px-8 py-5 text-left text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Knowledge to Gain</th>
-									<th className="px-8 py-5 text-left text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Contact</th>
+									<th className="px-8 py-5 text-left text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Message</th>
 									<th className="w-20 py-5"></th>
 								</tr>
 							</thead>
@@ -262,16 +264,16 @@ export default function ConnectionListPage() {
 												</div>
 											</td>
 											<td className="px-8 py-6 whitespace-nowrap">
-                                                <div className="space-y-1">
-                                                    <div className="text-xs text-slate-300 flex items-center gap-2">
-                                                        <Mail className="w-3 h-3 text-primary" />
-                                                        {connection.email || "Private Email"}
-                                                    </div>
-                                                    <div className="text-xs text-slate-500 flex items-center gap-2">
-                                                        <MapPin className="w-3 h-3 text-accent" />
-                                                        {connection.department || "Global"}
-                                                    </div>
-                                                </div>
+												<Button 
+													variant="ghost" 
+													className="h-10 w-10 p-0 rounded-xl bg-primary/5 hover:bg-primary/20 text-primary transition-all border border-primary/10"
+													onClick={(e) => {
+														e.stopPropagation();
+														setIsChatDialogOpen(true);
+													}}
+												>
+													<MessageSquare className="h-5 w-5" />
+												</Button>
 											</td>
 											<td className="px-8 py-6 text-right" onClick={(e) => e.stopPropagation()}>
 												<DropdownMenu>
@@ -317,6 +319,29 @@ export default function ConnectionListPage() {
 					</div>
 				</Card>
 			</div>
+
+			<Dialog open={isChatDialogOpen} onOpenChange={setIsChatDialogOpen}>
+				<DialogContent className="bg-slate-900 border-white/10 text-white rounded-3xl max-w-sm">
+					<DialogHeader>
+						<DialogTitle className="flex items-center gap-2 text-xl font-black">
+							<MessageSquare className="w-5 h-5 text-primary" />
+							Chat Feature
+						</DialogTitle>
+						<DialogDescription className="text-slate-400 pt-4">
+							<div className="p-4 bg-primary/5 border border-primary/10 rounded-2xl text-center">
+								<p className="font-bold text-white mb-2">Coming Soon!</p>
+								<p>Real-time messaging is currently under development to ensure a seamless experience.</p>
+							</div>
+						</DialogDescription>
+					</DialogHeader>
+					<Button 
+						onClick={() => setIsChatDialogOpen(false)}
+						className="w-full bg-primary hover:bg-primary/90 text-white font-bold rounded-xl h-12 mt-4"
+					>
+						Got it!
+					</Button>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }
