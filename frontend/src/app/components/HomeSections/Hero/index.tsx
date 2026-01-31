@@ -16,8 +16,8 @@ const Hero = () => {
       <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/10"></div>
       
       {/* Animated circles */}
-      <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-pulse delay-700"></div>
+      <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-2xl animate-pulse"></div>
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/10 rounded-full blur-2xl animate-pulse delay-700"></div>
       
       <div className="relative z-10 max-w-6xl mx-auto text-center">
         {/* Badge */}
