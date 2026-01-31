@@ -14,9 +14,35 @@ import {
 	DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 
 export const Navbar = () => {
 	const { user, loading } = useGetMyProfile();
+	const [isVisible, setIsVisible] = useState(true);
+	const [lastScrollY, setLastScrollY] = useState(0);
+
+	useEffect(() => {
+		const controlNavbar = () => {
+			if (typeof window !== "undefined") {
+				if (window.scrollY > lastScrollY && window.scrollY > 80) {
+					// scrolling down
+					setIsVisible(false);
+				} else {
+					// scrolling up
+					setIsVisible(true);
+				}
+				// remember current page location to use next time
+				setLastScrollY(window.scrollY);
+			}
+		};
+
+		window.addEventListener("scroll", controlNavbar);
+
+		// cleanup function
+		return () => {
+			window.removeEventListener("scroll", controlNavbar);
+		};
+	}, [lastScrollY]);
 
 	const displayName = loading ? "Loading..." : user?.name || "Guest";
 	const avatarLetter = user?.name?.charAt(0)?.toUpperCase() || "G";
@@ -26,7 +52,9 @@ export const Navbar = () => {
 
 	const isActive = (path: string) => pathname === path;
 	return (
-		<nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
+		<nav className={`fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50 transition-all duration-300 ease-in-out ${
+			isVisible ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"
+		}`}>
 			<div className="max-w-7xl mx-auto px-6 py-4">
 				<div className="flex items-center justify-between">
 					{/* Logo */}
