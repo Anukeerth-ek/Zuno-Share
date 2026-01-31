@@ -21,12 +21,11 @@ export const getFilteredProfile = async (req: any, res: Response) => {
 			select: { senderId: true, receiverId: true },
 		});
 
-		const excludedUserIds = new Set<string>();
-		excludedUserIds.add(userId);
-		connections.forEach((c) => {
-			excludedUserIds.add(c.senderId);
-			excludedUserIds.add(c.receiverId);
-		});
+		const excludedUserIds = connections.reduce((acc, c) => {
+			acc.add(c.senderId);
+			acc.add(c.receiverId);
+			return acc;
+		}, new Set<string>([userId]));
 
 		where.id = { notIn: Array.from(excludedUserIds) };
 	}
