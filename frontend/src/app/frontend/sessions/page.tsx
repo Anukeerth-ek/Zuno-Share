@@ -350,7 +350,9 @@ const SessionCard: React.FC<SessionCardProps> = ({
 						<Clock className="w-3 h-3 text-primary" />
 						<span className="text-[10px] font-black uppercase tracking-widest">Scheduled For</span>
 					</div>
-					<p className="text-sm font-bold text-white uppercase">{new Date(session.scheduledAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</p>
+					<p className="text-sm font-bold text-white uppercase" suppressHydrationWarning>
+						{new Date(session.scheduledAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
+					</p>
 				</div>
 			</div>
 

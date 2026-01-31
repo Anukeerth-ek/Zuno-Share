@@ -69,6 +69,7 @@ export const Navbar = () => {
 					<div className="flex items-center space-x-2">
 						<Link href="/">
 							<Button
+								asChild
 								variant="ghost"
 								size="sm"
 								className={
@@ -77,12 +78,15 @@ export const Navbar = () => {
 										: "text-gray-400 hover:text-white hover:bg-white/5 cursor-pointer"
 								}
 							>
-								<Home className="w-4 h-4 mr-2" />
-								Home
+								<span>
+									<Home className="w-4 h-4 mr-2" />
+									Home
+								</span>
 							</Button>
 						</Link>
 						<Link href="/frontend/find-connections">
 							<Button
+								asChild
 								variant="ghost"
 								size="sm"
 								className={
@@ -91,12 +95,15 @@ export const Navbar = () => {
 										: "text-gray-400 hover:text-white hover:bg-white/5 cursor-pointer"
 								}
 							>
-								<Users className="w-4 h-4 mr-2" />
-								Find Connections
+								<span>
+									<Users className="w-4 h-4 mr-2" />
+									Find Connections
+								</span>
 							</Button>
 						</Link>
 						<Link href="/frontend/connections">
 							<Button
+								asChild
 								variant="ghost"
 								size="sm"
 								className={
@@ -105,12 +112,15 @@ export const Navbar = () => {
 										: "text-gray-400 hover:text-white hover:bg-white/5 cursor-pointer"
 								}
 							>
-								<Users className="w-4 h-4 mr-2" />
-								My Connections
+								<span>
+									<Users className="w-4 h-4 mr-2" />
+									My Connections
+								</span>
 							</Button>
 						</Link>
 						<Link href="/frontend/sessions">
 							<Button
+								asChild
 								variant="ghost"
 								size="sm"
 								className={
@@ -119,8 +129,10 @@ export const Navbar = () => {
 										: "text-gray-400 hover:text-white hover:bg-white/5 cursor-pointer"
 								}
 							>
-								<BookOpen className="w-4 h-4 mr-2" />
-								My Sessions
+								<span>
+									<BookOpen className="w-4 h-4 mr-2" />
+									My Sessions
+								</span>
 							</Button>
 						</Link>
 						{/* <Link href="/frontend/chat">
@@ -196,9 +208,11 @@ export const Navbar = () => {
 							</div>
 						) : (
 							<Link href="/login">
-								<Button className="relative overflow-hidden group bg-gradient-to-br from-primary to-accent hover:opacity-90 text-primary-foreground font-semibold px-6 py-2 rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-primary/20">
-									<span className="relative z-10">Login</span>
-									<div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+								<Button asChild className="relative overflow-hidden group bg-gradient-to-br from-primary to-accent hover:opacity-90 text-primary-foreground font-semibold px-6 py-2 rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-primary/20">
+									<span>
+										Login
+										<div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+									</span>
 								</Button>
 							</Link>
 						)}
