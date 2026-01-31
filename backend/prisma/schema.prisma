@@ -51,6 +51,9 @@ model Connection {
   createdAt  DateTime         @default(now())
   receiver   User             @relation("ReceivedConnections", fields: [receiverId], references: [id])
   sender     User             @relation("SentConnections", fields: [senderId], references: [id])
+
+  @@index([senderId])
+  @@index([receiverId])
 }
 
 model Follow {
@@ -62,6 +65,8 @@ model Follow {
   following   User     @relation("Followers", fields: [followingId], references: [id])
 
   @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
 }
 
 model Session {
