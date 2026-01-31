@@ -33,14 +33,18 @@ const FindConnections = () => {
      const router = useRouter();
 
      useEffect(() => {
-          const params = new URLSearchParams();
-          if (filters.search) params.set("search", filters.search);
-          if (filters.company) params.set("company", filters.company);
-          if (filters.professional.length) params.set("professional", filters.professional.join(","));
-          if (filters.experience.length) params.set("experience", filters.experience.join(","));
-          if (filters.sort) params.set("sort", filters.sort);
+          const timer = setTimeout(() => {
+               const params = new URLSearchParams();
+               if (filters.search) params.set("search", filters.search);
+               if (filters.company) params.set("company", filters.company);
+               if (filters.professional.length) params.set("professional", filters.professional.join(","));
+               if (filters.experience.length) params.set("experience", filters.experience.join(","));
+               if (filters.sort) params.set("sort", filters.sort);
 
-          router.replace(`?${params.toString()}`);
+               router.replace(`?${params.toString()}`);
+          }, 500);
+
+          return () => clearTimeout(timer);
      }, [filters, router]);
 
      const fetchUsers = React.useCallback(async (page: number, append: boolean = false) => {
