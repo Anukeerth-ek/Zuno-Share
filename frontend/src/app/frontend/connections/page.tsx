@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { MoreHorizontal, Users, Mail, MapPin, Briefcase, Plus, CheckCircle2, XCircle, Bell, User as UserIcon, MessageSquare } from "lucide-react";
+import { MoreHorizontal, Users, Briefcase, Plus, CheckCircle2, XCircle, Bell, User as UserIcon, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
