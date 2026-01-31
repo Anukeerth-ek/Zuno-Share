@@ -238,7 +238,7 @@ export default function ConnectionDetailPage() {
 											</SelectTrigger>
 											<SelectContent className="bg-slate-900 border-white/10 text-white">
 												{mentor.skillsOffered.map(skill => (
-													<SelectItem key={skill.id} value={skill.id}>{skill.name}</SelectItem>
+													<SelectItem key={skill.id} value={skill.name}>{skill.name}</SelectItem>
 												))}
 											</SelectContent>
 										</Select>
