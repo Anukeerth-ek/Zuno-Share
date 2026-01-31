@@ -128,7 +128,7 @@ export default function ConnectionListPage() {
 			<p>Failed to fetch connections. Please try again later.</p>
 		</div>
 	);
-console.log("anu", usersConnection)
+
 	return (
 		<div className="min-h-screen bg-[#030712] relative isolate overflow-hidden pt-24 pb-12 px-6 lg:px-12 mt-10">
 			<div className="absolute inset-0 -z-10 h-full w-full bg-[#030712]">
@@ -327,10 +327,12 @@ console.log("anu", usersConnection)
 							<MessageSquare className="w-5 h-5 text-primary" />
 							Chat Feature
 						</DialogTitle>
-						<DialogDescription className="text-slate-400 pt-4">
-							<div className="p-4 bg-primary/5 border border-primary/10 rounded-2xl text-center">
-								<p className="font-bold text-white mb-2">Coming Soon!</p>
-								<p>Real-time messaging is currently under development to ensure a seamless experience.</p>
+						<DialogDescription asChild>
+							<div className="text-slate-400 pt-4">
+								<div className="p-4 bg-primary/5 border border-primary/10 rounded-2xl text-center">
+									<p className="font-bold text-white mb-2">Coming Soon!</p>
+									<p>Real-time messaging is currently under development to ensure a seamless experience.</p>
+								</div>
 							</div>
 						</DialogDescription>
 					</DialogHeader>
