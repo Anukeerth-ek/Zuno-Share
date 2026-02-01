@@ -23,7 +23,9 @@ export const metadata: Metadata = {
      title: "Zuno",
      description: "Peer to Peer Social Connecting App",
      icons: {
-          icon: '/favicon.ico'
+          icon: '/favicon.ico',
+          shortcut: '/favicon.ico',
+          apple: '/favicon.ico',
      }
 };
 
