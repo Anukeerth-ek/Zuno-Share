@@ -105,7 +105,7 @@ const FindConnections = () => {
           }
      };
 
-     if (myDataLoading) return null;
+     // if (myDataLoading) return null;
 
      const smartSearch = async (prompt: string) => {
           try {
@@ -152,7 +152,7 @@ const FindConnections = () => {
                     <div className="flex flex-1 flex-col">
                          <SearchResults
                               users={users}
-                              loading={loading}
+                              loading={loading || myDataLoading}
                               isFilterActive={
                                    !!filters.search || 
                                    filters.professional.length > 0 || 
