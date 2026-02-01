@@ -26,6 +26,10 @@ const app = express();
 app.use(cors()); // ✅ Enable CORS for all origins
 app.use(express.json());
 
+app.get("/api/health", (req, res) => {
+  res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
 app.use("/api/auth", authRoutes);
 app.use("/api/skills", skillRoutes);
 app.use("/api/bookSession", bookSessionRoutes);

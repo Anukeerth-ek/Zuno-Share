@@ -83,6 +83,9 @@ model Session {
   learner     User          @relation("LearnerSessions", fields: [learnerId], references: [id])
   mentor      User          @relation("MentorSessions", fields: [mentorId], references: [id])
   skill       Skill         @relation("SkillSessions", fields: [skillId], references: [id])
+
+  @@index([mentorId])
+  @@index([learnerId])
 }
 
 model UserProfessionDetails {

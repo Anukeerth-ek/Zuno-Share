@@ -159,6 +159,7 @@ export const getAllProfiles = async (req: Request, res: Response) => {
 
           const users = await prisma.user.findMany({
                where: currentUserId ? { id: { not: currentUserId } } : {},
+               take: 20, // ✅ Optimized: limit initial fetch
                include: {
                     skillsOffered: true,
                     professionDetails: true,
