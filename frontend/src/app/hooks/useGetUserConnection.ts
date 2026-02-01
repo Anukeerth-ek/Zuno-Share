@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getBaseUrl } from "@/utils/getBaseUrl";
 
 interface UserConnection {
@@ -22,55 +22,37 @@ interface UseGetUserConnectionsReturn {
      usersConnection: UserConnection[];
      loading: boolean;
      error: string | null;
-     setUsersConnection?: React.Dispatch<React.SetStateAction<UserConnection[]>>;
+     setUsersConnection: (updater: UserConnection[] | ((prev: UserConnection[]) => UserConnection[])) => void;
 }
 
 export function useGetUserConnections(userId?: string): UseGetUserConnectionsReturn {
-     const [usersConnection, setUsersConnection] = useState<UserConnection[]>([]);
-     const [loading, setLoading] = useState(false);
-     const [error, setError] = useState<string | null>(null);
+     const queryClient = useQueryClient();
+     const queryKey = ["connections", userId];
 
-     useEffect(() => {
-          if (!userId) return;
+     const { data: usersConnection = [], isLoading: loading, error: queryError } = useQuery({
+          queryKey,
+          queryFn: async () => {
+               const BASE_URL = getBaseUrl();
+               const res = await fetch(`${BASE_URL}/api/connections/${userId}`);
+               const data = await res.json();
 
-          const controller = new AbortController();
-          const signal = controller.signal;
-
-          const fetchConnections = async () => {
-               setLoading(true);
-               setError(null);
-               try {
-                    const BASE_URL = getBaseUrl();
-                    const res = await fetch(`${BASE_URL}/api/connections/${userId}`, { signal });
-                    const data = await res.json();
-
-                    if (res.ok) {
-                         setUsersConnection(data.connections || []);
-                    } else {
-                         setError(data.message || "Failed to fetch connections");
-                    }
-               } catch (err: unknown) {
-                    if (err instanceof Error) {
-                         // It's a real Error object
-                         if (err.name !== "AbortError") {
-                              setError(err.message || "Something went wrong");
-                         }
-                    } else {
-                         // fallback for non-Error thrown values
-                         setError("Something went wrong");
-                    }
-               } finally {
-                    setLoading(false);
+               if (!res.ok) {
+                    throw new Error(data.message || "Failed to fetch connections");
                }
-          };
+               return data.connections || [];
+          },
+          enabled: !!userId,
+          staleTime: 5 * 60 * 1000, // 5 minutes
+     });
 
-          fetchConnections();
+     const setUsersConnection = (updater: UserConnection[] | ((prev: UserConnection[]) => UserConnection[])) => {
+          queryClient.setQueryData(queryKey, updater);
+     };
 
-          // ✅ Cleanup: abort request if component unmounts or userId changes
-          return () => {
-               controller.abort();
-          };
-     }, [userId]);
-
-     return { usersConnection, loading, error, setUsersConnection };
+     return { 
+          usersConnection, 
+          loading, 
+          error: queryError ? (queryError as Error).message : null, 
+          setUsersConnection 
+     };
 }
