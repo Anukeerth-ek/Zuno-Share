@@ -1,11 +1,14 @@
+import dynamic from "next/dynamic";
 import Hero from "./components/HomeSections/Hero";
 import Features from "./components/HomeSections/Features";
-import HowItWorks from "./components/HomeSections/HowItWorks";
-import Footer from "./components/HomeSections/Footer";
-import HomeCTA from "./components/HomeSections/HomeCTA";
-import ProblemSolutionSection from "./components/problemSolution";
-import VisionSection from "./components/visionSection";
-import FAQSection from "./components/faq";
+
+// ✅ Lazy load components below the fold
+const HowItWorks = dynamic(() => import("./components/HomeSections/HowItWorks"));
+const Footer = dynamic(() => import("./components/HomeSections/Footer"));
+const HomeCTA = dynamic(() => import("./components/HomeSections/HomeCTA"));
+const ProblemSolutionSection = dynamic(() => import("./components/problemSolution"));
+const VisionSection = dynamic(() => import("./components/visionSection"));
+const FAQSection = dynamic(() => import("./components/faq"));
 
 export default function Home() {
 
