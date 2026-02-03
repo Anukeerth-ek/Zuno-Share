@@ -156,9 +156,10 @@ const ProfileCreatePage = () => {
                if (avatarFile) {
                     try {
                          avatarUrl = await uploadToCloudinary(avatarFile);
-                    } catch (uploadError: any) {
+                    } catch (uploadError: unknown) {
+                         const errorMessage = uploadError instanceof Error ? uploadError.message : "Unknown error";
                          console.error("Image upload failed:", uploadError);
-                         alert(`Image upload failed: ${uploadError.message}`);
+                         alert(`Image upload failed: ${errorMessage}`);
                          setIsSubmitting(false);
                          return;
                     }
