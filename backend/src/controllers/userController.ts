@@ -97,7 +97,8 @@ export const createUserProfile = async (req: AuthenticatedRequest, res: Response
       website,
     } = req.body;
 
-    const avatarUrl = req.file ? `/uploads/${req.file.filename}` : undefined;
+
+    const avatarUrl = req.body.avatarUrl || (req.file ? `/uploads/${req.file.filename}` : undefined);
 
     const rawSkillsOffered = req.body.skillsOffered || req.body["skillsOffered[]"] || [];
     const rawSkillsWanted = req.body.skillsWanted || req.body["skillsWanted[]"] || [];

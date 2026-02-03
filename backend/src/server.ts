@@ -37,7 +37,8 @@ app.use("/api/profile", userRoutes);
 app.use("/api/profiles", profileRoutes);
 app.use("/api/learnersBooking", learnerRoutes);
 app.use("/api/mentorBooking", mentorRoutes);
-app.use("/api/profile", profileRoutes);
+app.use("/api/mentorBooking", mentorRoutes);
+// app.use("/api/profile", profileRoutes); // Duplicate removed
 
 app.use("/api/filtered-profile", filteredProfileRoutes);
 

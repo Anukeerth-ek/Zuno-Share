@@ -15,6 +15,32 @@ import { Separator } from "@/components/ui/separator";
 import { getBaseUrl } from "@/utils/getBaseUrl";
 import { profileData } from "@/types";
 
+const uploadToCloudinary = async (file: File): Promise<string> => {
+     const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+     const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_PRESET;
+
+     if (!cloudName || !uploadPreset) {
+          throw new Error("Cloudinary configuration is missing");
+     }
+
+     const formData = new FormData();
+     formData.append("file", file);
+     formData.append("upload_preset", uploadPreset);
+
+     const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+          method: "POST",
+          body: formData,
+     });
+
+     if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || "Failed to upload image");
+     }
+
+     const data = await response.json();
+     return data.secure_url;
+};
+
 const ProfileCreatePage = () => {
      const router = useRouter();
 
@@ -125,29 +151,61 @@ const ProfileCreatePage = () => {
                const avatarFileInput = document.getElementById("avatarFile") as HTMLInputElement;
                const avatarFile = avatarFileInput?.files?.[0];
 
-               const formDataToSend = new FormData();
-               formDataToSend.append("name", formData.name);
-               formDataToSend.append("bio", formData.bio || "");
-               formDataToSend.append("timeZone", formData.timeZone || "");
-               formDataToSend.append("professionTitle", formData.professionDetails.title);
-               formDataToSend.append("organization", formData.currentOrganization.organization);
-               formDataToSend.append("experienceYears", formData.experienceSummary.years);
+               let avatarUrl = formData.avatarUrl;
 
-               if (avatarFile) formDataToSend.append("avatar", avatarFile);
+               if (avatarFile) {
+                    try {
+                         avatarUrl = await uploadToCloudinary(avatarFile);
+                    } catch (uploadError: any) {
+                         console.error("Image upload failed:", uploadError);
+                         alert(`Image upload failed: ${uploadError.message}`);
+                         setIsSubmitting(false);
+                         return;
+                    }
+               }
 
-               formData.skillsOffered.forEach((skill) => formDataToSend.append("skillsOffered[]", skill));
-               formData.skillsWanted.forEach((skill) => formDataToSend.append("skillsWanted[]", skill));
+               const payload = {
+                    name: formData.name,
+                    bio: formData.bio || "",
+                    timeZone: formData.timeZone || "",
+                    professionTitle: formData.professionDetails.title,
+                    organization: formData.currentOrganization.organization,
+                    experienceYears: formData.experienceSummary.years,
+                    avatarUrl,
+                    skillsOffered: formData.skillsOffered,
+                    skillsWanted: formData.skillsWanted,
+               };
+
+               // DEBUG: Alert outgoing payload
+               // alert(`SENDING payload with avatarUrl: ${avatarUrl}`);
 
                const BASE_URL = getBaseUrl();
                const url = isEdit ? `${BASE_URL}/api/profile/update` : `${BASE_URL}/api/profile`;
 
                const response = await fetch(url, {
                     method: isEdit ? "PUT" : "POST",
-                    headers: { Authorization: `Bearer ${token}` },
-                    body: formDataToSend,
+                    headers: { 
+                         "Authorization": `Bearer ${token}`,
+                         "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload),
                });
 
-               if (response.ok) router.push("/");
+
+               if (!response.ok) {
+                    const error = await response.json();
+                    alert(`Profile update failed: ${error.message}`);
+                    return; 
+               }
+               
+               // Debug check response (Optional: keep for low-level debug or remove)
+               const responseData = await response.json();
+               
+               if (responseData.user?.avatarUrl === avatarUrl) {
+                    // Success silently proceed
+               }
+
+               router.push("/");
           } catch (error) {
                console.error("Error saving profile:", error);
           } finally {
@@ -490,7 +548,7 @@ const ProfileCreatePage = () => {
                                    <div className="flex justify-end pt-4">
                                         <Button
                                              type="submit"
-                                             disabled={isSubmitting || !formData.name.trim()}
+                                             disabled={isSubmitting}
                                              className="min-w-[240px] bg-gradient-to-r from-primary to-accent hover:opacity-90 text-white font-black text-lg h-16 rounded-2xl shadow-2xl shadow-primary/20 transition-all hover:scale-[1.03] active:scale-[0.98] disabled:opacity-50"
                                         >
                                              {isSubmitting ? (

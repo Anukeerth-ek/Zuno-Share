@@ -125,10 +125,14 @@ export const updateUserProfile = async (req: Request & { userId?: string }, res:
                },
           });
 
-          res.status(200).json({ message: "Profile updated", user: updatedUser });
+
+          res.status(200).json({ 
+               message: "Profile updated", 
+               user: updatedUser,
+          });
      } catch (err) {
           console.error(err);
-          res.status(500).json({ message: "Error updating profile" });
+          res.status(500).json({ message: "Error updating profile", error: err });
      }
 };
 
