@@ -23,7 +23,7 @@ const Hero = () => {
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-8 animate-fade-in">
           <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
-          <span className="text-sm font-medium text-foreground">Peer-to-Peer Mentorship Platform</span>
+          <span className="text-sm font-medium text-foreground">Start Your Learning Journey</span>
         </div>
 
         {/* Main Heading */}
@@ -41,8 +41,8 @@ const Hero = () => {
             Get Started Free
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
-          <Button variant="outline" size="lg" className="border-border hover:bg-secondary px-8 py-6 text-lg rounded-xl transition-all hover:scale-105">
-            Watch Demo
+          <Button onClick={() => router.push('/about')} variant="outline" size="lg" className="border-border hover:bg-secondary hover:text-white px-8 py-6 text-lg rounded-xl transition-all hover:scale-105">
+            Learn More
           </Button>
         </div>
 
