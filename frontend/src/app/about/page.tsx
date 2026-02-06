@@ -48,7 +48,7 @@ export default function AboutPage() {
             </div>
             <h2 className="text-3xl md:text-4xl font-bold mb-6">Bridging the Gap in Professional Development</h2>
             <p className="text-lg text-muted-foreground mb-6">
-              Traditional mentorship can be hard to find and expensive. We're democratizing access to knowledge by creating a marketplace of skills where reputation and contribution matter more than credentials.
+              Traditional mentorship can be hard to find and expensive. We&apos;re democratizing access to knowledge by creating a marketplace of skills where reputation and contribution matter more than credentials.
             </p>
             <ul className="space-y-4">
               {[
