@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Home, BookOpen, Users, Bell, LogOut, Settings, ChevronDown } from "lucide-react";
+import { Home, BookOpen, Users, Bell, LogOut, Settings, ChevronDown, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useGetMyProfile } from "@/app/hooks/useGetMyProfile";
@@ -132,6 +132,23 @@ export const Navbar = () => {
 								<span>
 									<BookOpen className="w-4 h-4 mr-2" />
 									My Sessions
+								</span>
+							</Button>
+						</Link>
+						<Link href="/feed">
+							<Button
+								asChild
+								variant="ghost"
+								size="sm"
+								className={
+									isActive("/feed")
+										? "text-primary hover:text-primary hover:bg-primary/10 cursor-pointer font-medium"
+										: "text-gray-400 hover:text-white hover:bg-white/5 cursor-pointer"
+								}
+							>
+								<span>
+									<MessageSquare className="w-4 h-4 mr-2" />
+									Community
 								</span>
 							</Button>
 						</Link>
