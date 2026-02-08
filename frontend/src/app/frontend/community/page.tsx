@@ -37,8 +37,8 @@ export default function CommunityPage() {
     try {
       const token = localStorage.getItem("token");
       const url = skillFilter 
-        ? `${process.env.NEXT_PUBLIC_API_URL}/posts/feed?skillId=${skillFilter}`
-        : `${process.env.NEXT_PUBLIC_API_URL}/posts/feed`;
+        ? `${process.env.NEXT_PUBLIC_API_URL}/api/posts?skillId=${skillFilter}`
+        : `${process.env.NEXT_PUBLIC_API_URL}/api/posts`;
         
       const res = await fetch(url, {
         headers: {

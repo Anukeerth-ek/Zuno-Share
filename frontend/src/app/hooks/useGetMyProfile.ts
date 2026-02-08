@@ -41,7 +41,11 @@ export const useGetMyProfile = () => {
                          },
                     });
 
-                    if (!res.ok) console.log("not authorized");
+                    if (!res.ok) {
+                         console.log("not authorized or failed to fetch user");
+                         setLoading(false);
+                         return; // Stop execution
+                    }
 
                     const data = await res.json();
                     setUser(data.user);

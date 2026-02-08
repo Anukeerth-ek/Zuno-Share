@@ -97,8 +97,8 @@ export default function PostDetailsPage({ params }: { params: Promise<{ id: stri
              const headers = { Authorization: `Bearer ${token}` };
 
              const [postRes, commentsRes] = await Promise.all([
-                 fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/${id}`, { headers }),
-                 fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/${id}/comments`, { headers })
+                 fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts/${id}`, { headers }),
+                 fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts/${id}/comments`, { headers })
              ]);
 
              if (postRes.ok) {
@@ -148,7 +148,7 @@ export default function PostDetailsPage({ params }: { params: Promise<{ id: stri
 
         try {
             const token = localStorage.getItem("token");
-            await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/${id}/vote`, {
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts/${id}/vote`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -167,7 +167,7 @@ export default function PostDetailsPage({ params }: { params: Promise<{ id: stri
         setSubmitting(true);
         try {
             const token = localStorage.getItem("token");
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/${id}/comments`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts/${id}/comments`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -179,7 +179,7 @@ export default function PostDetailsPage({ params }: { params: Promise<{ id: stri
             if (res.ok) {
                 setNewComment("");
                 // Refresh comments
-                const commentsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/${id}/comments`, {
+                const commentsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts/${id}/comments`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 if (commentsRes.ok) {

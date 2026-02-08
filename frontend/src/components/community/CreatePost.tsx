@@ -33,7 +33,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
       const fetchSkills = async () => {
           try {
              // Assuming we have a public or auth route to get skills
-             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/skills`);
+             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/skills`);
              if(res.ok) {
                  const data = await res.json();
                  setSkills(data);
@@ -52,7 +52,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

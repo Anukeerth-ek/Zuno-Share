@@ -43,7 +43,7 @@ export default function PostCard({ post }: { post: Post }) {
 
     try {
         const token = localStorage.getItem("token");
-         await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/${post.id}/vote`, {
+         await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts/${post.id}/vote`, {
             method: "POST",
             headers: {
                  "Content-Type": "application/json",
