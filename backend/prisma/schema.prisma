@@ -32,6 +32,10 @@ model User {
   skillsWanted        Skill[]                  @relation("SkillsWanted")
 
   googleToken        GoogleToken?              @relation("UserGoogleToken")
+
+  posts               Post[]
+  comments            Comment[]
+  votes               Vote[]
 }
 
 model Skill {
@@ -41,6 +45,7 @@ model Skill {
   sessions  Session[] @relation("SkillSessions")
   offeredBy User[]    @relation("SkillsOffered")
   wantedBy  User[]    @relation("SkillsWanted")
+  posts     Post[]
 }
 
 model Connection {
@@ -157,4 +162,68 @@ enum SessionStatus {
   COMPLETED
   CANCELLED
   REJECTED
+}
+
+model Post {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  
+  skillId   String
+  skill     Skill    @relation(fields: [skillId], references: [id])
+  
+  comments  Comment[]
+  votes     Vote[]
+
+  @@index([authorId])
+  @@index([skillId])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  parentId  String?
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies   Comment[] @relation("CommentReplies")
+
+  votes     Vote[]
+
+  @@index([authorId])
+  @@index([postId])
+  @@index([parentId])
+}
+
+model Vote {
+  id        String   @id @default(uuid())
+  value     Int      // 1 for upvote, -1 for downvote
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
+  postId    String?
+  post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  commentId String?
+  comment   Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  postId_commentId String? // Virtual field for unique constraint logic if needed, but handled by @@unique below
+
+  @@unique([userId, postId, commentId]) // Prevent multiple votes on same item
+  @@index([userId])
+  @@index([postId])
+  @@index([commentId])
 }
