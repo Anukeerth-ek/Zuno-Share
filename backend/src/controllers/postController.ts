@@ -41,10 +41,14 @@ export const createPost = async (req: AuthRequest, res: Response): Promise<void>
     export const getFeed = async (req: AuthRequest, res: Response): Promise<void> => {
       try {
         const { skillId, page = 1, limit = 10 } = req.query;
+        console.log("getFeed called:", { skillId, page, limit, user: req.user });
         const skip = (Number(page) - 1) * Number(limit);
 
+        const whereClause = skillId ? { skillId: String(skillId) } : {};
+        console.log("Querying posts with where:", whereClause);
+
         const posts = await prisma.post.findMany({
-          where: skillId ? { skillId: String(skillId) } : {},
+          where: whereClause,
           orderBy: { createdAt: "desc" },
           take: Number(limit),
           skip: skip,

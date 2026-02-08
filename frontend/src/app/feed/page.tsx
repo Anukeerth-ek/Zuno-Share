@@ -42,7 +42,8 @@ export default function FeedPage() {
 
   const fetchSkills = async () => {
       try {
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/skills`);
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+          const res = await fetch(`${apiUrl}/skills`);
           if (res.ok) {
               setSkills(await res.json());
           }
@@ -56,7 +57,8 @@ export default function FeedPage() {
     try {
       const token = localStorage.getItem("token");
       const skillQuery = skillId && skillId !== "all" ? `&skillId=${skillId}` : "";
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts?page=${currentPage}&limit=10${skillQuery}`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+      const res = await fetch(`${apiUrl}/posts?page=${currentPage}&limit=10${skillQuery}`, {
           headers: {
               Authorization: `Bearer ${token}`
           }
